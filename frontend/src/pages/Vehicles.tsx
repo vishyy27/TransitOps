@@ -266,12 +266,36 @@ function EditVehicleModal({ vehicle, onClose }: { vehicle: Vehicle; onClose: () 
 function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () => void }) {
   const { state } = useStore();
   const [activeTab, setActiveTab] = useState<'overview' | 'documents'>('overview');
+  const [documents, setDocuments] = useState<{ id: string; name: string; uploadedAt: string; status: 'Active' | 'Expiring' | 'Expired' }[]>([
+    { id: 'd1', name: 'Commercial Insurance Policy', uploadedAt: 'Uploaded 10 days ago', status: 'Active' },
+    { id: 'd2', name: 'State Vehicle Registration Certificate', uploadedAt: 'Uploaded 5 months ago', status: 'Active' },
+    { id: 'd3', name: 'Safety Inspection Certificate', uploadedAt: 'Expires in 15 days', status: 'Expiring' }
+  ]);
+  const [isAddingDoc, setIsAddingDoc] = useState(false);
+  const [newDocName, setNewDocName] = useState('');
+
   const vehicle = state.vehicles.find(item => item.id === vehicleId);
   if (!vehicle) return null;
   const relatedTrips = state.trips.filter(trip => trip.vehicleId === vehicleId);
   const maintenanceCost = state.maintenanceRecords.filter(record => record.vehicleId === vehicleId).reduce((sum, record) => sum + record.cost, 0);
   const fuelCost = state.fuelLogs.filter(log => log.vehicleId === vehicleId).reduce((sum, log) => sum + log.cost, 0);
   
+  const handleAddDocument = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDocName.trim()) return;
+    setDocuments([
+      ...documents,
+      {
+        id: Math.random().toString(36).substr(2, 9),
+        name: newDocName.trim(),
+        uploadedAt: 'Uploaded just now',
+        status: 'Active'
+      }
+    ]);
+    setNewDocName('');
+    setIsAddingDoc(false);
+  };
+
   return <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-sm" onClick={onClose}><aside onClick={event => event.stopPropagation()} className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-2xl sm:p-8"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Fleet asset</p><h2 className="mt-1 font-display text-2xl font-bold text-slate-900">{vehicle.registrationNumber}</h2><p className="text-sm text-slate-500">{vehicle.name}</p></div><button onClick={onClose} className="rounded-full p-2 text-slate-500 hover:bg-slate-100"><X className="w-5 h-5" /></button></div><div className="mt-5"><Badge status={vehicle.status} /></div>
   
   <div className="mt-8 flex gap-4 border-b border-slate-100">
@@ -285,30 +309,47 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
     </>
   ) : (
     <section className="mt-8 space-y-4">
-      <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-bold text-slate-900">Insurance Policy</p>
-          <p className="text-xs text-slate-500 mt-1">Uploaded 10 days ago</p>
+      {documents.map(doc => (
+        <div key={doc.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 flex items-center justify-between group">
+          <div>
+            <p className="text-sm font-bold text-slate-900">{doc.name}</p>
+            <p className="text-xs text-slate-500 mt-1">{doc.uploadedAt}</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge status={doc.status === 'Active' ? 'Available' : 'In Shop'} />
+            <button 
+              onClick={() => setDocuments(docs => docs.filter(d => d.id !== doc.id))}
+              className="text-rose-500 hover:text-rose-700 text-xs font-bold uppercase tracking-wider cursor-pointer"
+            >
+              Remove
+            </button>
+          </div>
         </div>
-        <Badge status="Active" />
-      </div>
-      <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-bold text-slate-900">Vehicle Registration</p>
-          <p className="text-xs text-slate-500 mt-1">Uploaded 5 months ago</p>
-        </div>
-        <Badge status="Active" />
-      </div>
-      <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-bold text-slate-900">Inspection Certificate</p>
-          <p className="text-xs text-slate-500 mt-1">Expires in 15 days</p>
-        </div>
-        <Badge status="Maintenance" />
-      </div>
-      <button className="w-full mt-4 py-3 border-2 border-dashed border-slate-200 rounded-xl text-sm font-bold text-slate-500 hover:border-accent hover:text-accent transition-colors">
-        + Upload New Document
-      </button>
+      ))}
+      
+      {isAddingDoc ? (
+        <form onSubmit={handleAddDocument} className="border border-slate-100 bg-slate-50 rounded-2xl p-4 space-y-3">
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Document Name</label>
+            <input 
+              type="text" 
+              required
+              placeholder="e.g. Emission Permit" 
+              value={newDocName}
+              onChange={e => setNewDocName(e.target.value)}
+              className="w-full px-3.5 py-2 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent bg-white text-slate-900 font-medium text-xs"
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <button type="button" onClick={() => setIsAddingDoc(false)} className="px-3 py-1.5 text-[10px] font-bold uppercase text-slate-500 hover:text-slate-900 border border-slate-200 rounded-full cursor-pointer">Cancel</button>
+            <button type="submit" className="px-3 py-1.5 text-[10px] font-bold uppercase text-white bg-accent rounded-full cursor-pointer">Add Document</button>
+          </div>
+        </form>
+      ) : (
+        <button onClick={() => setIsAddingDoc(true)} className="w-full mt-4 py-3 border-2 border-dashed border-slate-200 rounded-xl text-sm font-bold text-slate-500 hover:border-accent hover:text-accent transition-colors cursor-pointer">
+          + Upload New Document
+        </button>
+      )}
     </section>
   )}
   </aside></div>;
