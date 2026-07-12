@@ -47,7 +47,8 @@ describe('Trip Dispatch Rules', () => {
         vehicle_id: vehicle.id,
         driver_id: driver.id,
         cargo_weight: 500, // capacity is 400
-        planned_distance: 100
+        planned_distance: 100,
+        revenue: 500
       });
     
     expect(res.statusCode).toBe(400);

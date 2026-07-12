@@ -1,5 +1,6 @@
 const express = require('express');
 const validate = require('../../middleware/validate');
+const paginationSchema = require('../../middleware/pagination');
 const { createTripSchema, completeTripSchema, tripIdSchema } = require('./trips.validation');
 const tripsController = require('./trips.controller');
 const asyncHandler = require('../../utils/asyncHandler');
@@ -22,6 +23,6 @@ router.post('/', authorize('FLEET_MANAGER', 'DRIVER'), validate(createTripSchema
 router.post('/:id/dispatch', authorize('FLEET_MANAGER'), validateParams(tripIdSchema), asyncHandler(tripsController.dispatchTrip));
 router.post('/:id/complete', authorize('FLEET_MANAGER', 'DRIVER'), validateParams(tripIdSchema), validate(completeTripSchema), asyncHandler(tripsController.completeTrip));
 router.post('/:id/cancel', authorize('FLEET_MANAGER'), validateParams(tripIdSchema), asyncHandler(tripsController.cancelTrip));
-router.get('/', asyncHandler(tripsController.getTrips));
+router.get('/', validate(paginationSchema, 'query'), asyncHandler(tripsController.getTrips));
 
 module.exports = router;

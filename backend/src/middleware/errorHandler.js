@@ -2,7 +2,7 @@ const errorHandler = (err, req, res, next) => {
   // Handle Zod Validation Errors
   if (err.name === 'ZodError') {
     // Take the first error issue to provide a specific field error message
-    const issue = err.errors[0];
+    const issue = err.issues[0];
     const field = issue.path.join('.');
     return res.status(400).json({
       success: false,
@@ -16,14 +16,20 @@ const errorHandler = (err, req, res, next) => {
 
   // Handle Prisma Known Request Errors
   if (err.name === 'PrismaClientKnownRequestError') {
-    // P2002: Unique constraint failed
     if (err.code === 'P2002') {
       const field = err.meta?.target?.[0] || 'unknown';
+      let message = `Resource with this ${field} already exists.`;
+      
+      if (field === 'registration_number') {
+        const val = req.body.registration_number || 'X';
+        message = `Vehicle with registration number '${val}' already exists.`;
+      }
+      
       return res.status(400).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: `Resource with this ${field} already exists.`,
+          message: message,
           field: field
         }
       });

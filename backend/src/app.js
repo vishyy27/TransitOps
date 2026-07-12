@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const passport = require('passport');
 const errorHandler = require('./middleware/errorHandler');
 
 // Import Routes
@@ -18,9 +19,12 @@ const app = express();
 // Security Middlewares
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*', // Adjust for production
+  origin: ['http://localhost:5173', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PATCH', 'DELETE']
 }));
+
+require('./modules/auth/google-strategy');
+app.use(passport.initialize());
 
 // Parsers & Logging
 app.use(express.json());

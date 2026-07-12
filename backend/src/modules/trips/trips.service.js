@@ -31,9 +31,16 @@ const dispatchTrip = async (id) => {
       if (!t) throw { status: 404, message: 'Trip not found', code: 'NOT_FOUND' };
       if (t.status !== 'DRAFT') throw { status: 400, message: 'Trip must be in DRAFT status', code: 'INVALID_STATUS' };
       
+      if (t.vehicle.status === 'ON_TRIP') throw { status: 400, message: 'Vehicle is already assigned to an active trip.', code: 'VEHICLE_ON_TRIP' };
       if (t.vehicle.status !== 'AVAILABLE') throw { status: 400, message: `Vehicle is not available (Current status: ${t.vehicle.status})`, code: 'VEHICLE_UNAVAILABLE' };
+      
+      if (t.driver.status === 'SUSPENDED') throw { status: 400, message: 'Driver is currently suspended and cannot be assigned to a trip.', code: 'DRIVER_SUSPENDED' };
       if (t.driver.status !== 'AVAILABLE') throw { status: 400, message: `Driver is not available (Current status: ${t.driver.status})`, code: 'DRIVER_UNAVAILABLE' };
-      if (t.driver.license_expiry_date < new Date()) throw { status: 400, message: 'Driver license is expired', code: 'LICENSE_EXPIRED' };
+      
+      if (t.driver.license_expiry_date < new Date()) {
+        const dateStr = t.driver.license_expiry_date.toISOString().split('T')[0];
+        throw { status: 400, message: `Driver's license expired on ${dateStr} and cannot be assigned to a trip.`, code: 'LICENSE_EXPIRED' };
+      }
 
       const updatedTrip = await tx.trip.update({
         where: { id },

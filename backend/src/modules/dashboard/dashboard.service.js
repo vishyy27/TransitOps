@@ -96,29 +96,37 @@ const getOperationalCost = async () => {
 };
 
 const getVehicleROI = async () => {
-  // Using select to fetch only required fields, preventing full row fetch and memory bloat
+  // 1. Fetch all vehicles (only core fields)
   const vehicles = await prisma.vehicle.findMany({
-    select: {
-      id: true,
-      name: true,
-      acquisition_cost: true,
-      trips: {
-        where: { status: 'COMPLETED' },
-        select: { revenue: true }
-      },
-      maintenanceLogs: {
-        select: { cost: true }
-      },
-      fuelLogs: {
-        select: { cost: true }
-      }
-    }
+    select: { id: true, name: true, acquisition_cost: true }
   });
 
+  // 2. Fetch aggregations in parallel via groupBy, eliminating N+1
+  const [tripsData, maintenanceData, fuelData] = await Promise.all([
+    prisma.trip.groupBy({
+      by: ['vehicle_id'],
+      where: { status: 'COMPLETED' },
+      _sum: { revenue: true }
+    }),
+    prisma.maintenanceLog.groupBy({
+      by: ['vehicle_id'],
+      _sum: { cost: true }
+    }),
+    prisma.fuelLog.groupBy({
+      by: ['vehicle_id'],
+      _sum: { cost: true }
+    })
+  ]);
+
+  // 3. Create O(1) lookup maps
+  const tripMap = tripsData.reduce((acc, t) => { acc[t.vehicle_id] = t._sum.revenue || 0; return acc; }, {});
+  const maintenanceMap = maintenanceData.reduce((acc, m) => { acc[m.vehicle_id] = m._sum.cost || 0; return acc; }, {});
+  const fuelMap = fuelData.reduce((acc, f) => { acc[f.vehicle_id] = f._sum.cost || 0; return acc; }, {});
+
   const result = vehicles.map(v => {
-    const revenue = v.trips.reduce((acc, t) => acc + (t.revenue || 0), 0);
-    const maintenance = v.maintenanceLogs.reduce((acc, m) => acc + (m.cost || 0), 0);
-    const fuel = v.fuelLogs.reduce((acc, f) => acc + (f.cost || 0), 0);
+    const revenue = tripMap[v.id] || 0;
+    const maintenance = maintenanceMap[v.id] || 0;
+    const fuel = fuelMap[v.id] || 0;
     
     const roi = v.acquisition_cost === 0 ? 0 : (revenue - (maintenance + fuel)) / v.acquisition_cost;
     

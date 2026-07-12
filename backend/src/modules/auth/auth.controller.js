@@ -1,4 +1,5 @@
 const authService = require('./auth.service');
+const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
   const user = await authService.registerUser(req.body);
@@ -11,4 +12,30 @@ const login = async (req, res) => {
   res.json({ success: true, data: result });
 };
 
-module.exports = { register, login };
+const googleCallback = async (req, res) => {
+  // req.user contains the user from passport strategy
+  const user = req.user;
+  
+  // Issue JWT
+  const token = jwt.sign(
+    { userId: user.id, role: user.role }, 
+    process.env.JWT_SECRET || 'supersecret_jwt_key_here', 
+    { expiresIn: '8h' }
+  );
+
+  res.json({
+    success: true,
+    data: {
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        auth_provider: user.auth_provider
+      }
+    }
+  });
+};
+
+module.exports = { register, login, googleCallback };

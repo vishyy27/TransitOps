@@ -8,7 +8,7 @@ const registerUser = async (data) => {
   
   // Checking existing user is somewhat redundant because of Prisma P2002 error handler,
   // but it's fine to keep it explicit for better error handling flow if needed.
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
   if (existing) {
     const error = new Error('Email already exists');
     error.status = 409;

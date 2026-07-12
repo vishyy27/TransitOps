@@ -11,7 +11,9 @@ model User {
   id            Int      @id @default(autoincrement())
   name          String
   email         String   @unique
-  password_hash String
+  password_hash String?
+  google_id     String?  @unique
+  auth_provider String   @default("LOCAL")
   role          String   // FLEET_MANAGER, DRIVER, SAFETY_OFFICER, FINANCIAL_ANALYST
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
@@ -36,6 +38,8 @@ model Vehicle {
   expenses            Expense[]
 
   @@index([status])
+  @@index([type])
+  @@index([region])
 }
 
 model Driver {
@@ -65,7 +69,7 @@ model Trip {
   planned_distance Float
   final_odometer   Float?
   fuel_consumed    Float?
-  revenue          Float?
+  revenue          Float     @default(0)
   status           String    @default("DRAFT") // DRAFT, DISPATCHED, COMPLETED, CANCELLED
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt
@@ -75,6 +79,8 @@ model Trip {
   fuelLogs         FuelLog[]
 
   @@index([status])
+  @@index([vehicle_id])
+  @@index([driver_id])
 }
 
 model MaintenanceLog {
@@ -88,6 +94,8 @@ model MaintenanceLog {
   closed_at   DateTime?
   
   vehicle     Vehicle   @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
+
+  @@index([vehicle_id])
 }
 
 model FuelLog {
@@ -102,6 +110,8 @@ model FuelLog {
   
   vehicle    Vehicle  @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
   trip       Trip?    @relation(fields: [trip_id], references: [id], onDelete: SetNull)
+
+  @@index([vehicle_id])
 }
 
 model Expense {

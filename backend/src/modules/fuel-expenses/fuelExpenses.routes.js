@@ -1,5 +1,6 @@
 const express = require('express');
 const validate = require('../../middleware/validate');
+const paginationSchema = require('../../middleware/pagination');
 const { createFuelLogSchema, createExpenseSchema } = require('./fuelExpenses.validation');
 const fuelExpensesController = require('./fuelExpenses.controller');
 const asyncHandler = require('../../utils/asyncHandler');
@@ -10,9 +11,9 @@ const router = express.Router();
 router.use(authenticate);
 
 router.post('/fuel-logs', authorize('FLEET_MANAGER', 'DRIVER'), validate(createFuelLogSchema), asyncHandler(fuelExpensesController.createFuelLog));
-router.get('/fuel-logs', authorize('FLEET_MANAGER', 'FINANCIAL_ANALYST'), asyncHandler(fuelExpensesController.getFuelLogs));
+router.get('/fuel-logs', validate(paginationSchema, 'query'), asyncHandler(fuelExpensesController.getFuelLogs));
 
 router.post('/expenses', authorize('FLEET_MANAGER', 'DRIVER'), validate(createExpenseSchema), asyncHandler(fuelExpensesController.createExpense));
-router.get('/expenses', authorize('FLEET_MANAGER', 'FINANCIAL_ANALYST'), asyncHandler(fuelExpensesController.getExpenses));
+router.get('/expenses', validate(paginationSchema, 'query'), asyncHandler(fuelExpensesController.getExpenses));
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const express = require('express');
 const validate = require('../../middleware/validate');
+const paginationSchema = require('../../middleware/pagination');
 const { createMaintenanceSchema, maintenanceIdSchema } = require('./maintenance.validation');
 const maintenanceController = require('./maintenance.controller');
 const asyncHandler = require('../../utils/asyncHandler');
@@ -20,6 +21,6 @@ const validateParams = (schema) => (req, res, next) => {
 
 router.post('/', authorize('FLEET_MANAGER'), validate(createMaintenanceSchema), asyncHandler(maintenanceController.createMaintenanceLog));
 router.patch('/:id/close', authorize('FLEET_MANAGER'), validateParams(maintenanceIdSchema), asyncHandler(maintenanceController.closeMaintenanceLog));
-router.get('/', asyncHandler(maintenanceController.getMaintenanceLogs));
+router.get('/', validate(paginationSchema, 'query'), asyncHandler(maintenanceController.getMaintenanceLogs));
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const express = require('express');
 const validate = require('../../middleware/validate');
+const paginationSchema = require('../../middleware/pagination');
 const { createVehicleSchema, updateVehicleSchema, vehicleIdSchema } = require('./vehicles.validation');
 const vehiclesController = require('./vehicles.controller');
 const asyncHandler = require('../../utils/asyncHandler');
@@ -20,7 +21,7 @@ const validateParams = (schema) => (req, res, next) => {
 };
 
 router.post('/', authorize('FLEET_MANAGER'), validate(createVehicleSchema), asyncHandler(vehiclesController.createVehicle));
-router.get('/', asyncHandler(vehiclesController.getVehicles));
+router.get('/', validate(paginationSchema, 'query'), asyncHandler(vehiclesController.getVehicles));
 router.get('/:id', validateParams(vehicleIdSchema), asyncHandler(vehiclesController.getVehicleById));
 router.patch('/:id', authorize('FLEET_MANAGER'), validateParams(vehicleIdSchema), validate(updateVehicleSchema), asyncHandler(vehiclesController.updateVehicle));
 router.delete('/:id', authorize('FLEET_MANAGER'), validateParams(vehicleIdSchema), asyncHandler(vehiclesController.deleteVehicle));

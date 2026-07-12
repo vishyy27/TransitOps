@@ -35,7 +35,8 @@ Content-Type: application/json
   "vehicle_id": 1,
   "driver_id": 1,
   "cargo_weight": 450,
-  "planned_distance": 120.5
+  "planned_distance": 120.5,
+  "revenue": 500
 }
 
 ### Store trip ID
@@ -53,7 +54,6 @@ Content-Type: application/json
 {
   "final_odometer": 120.5,
   "fuel_consumed": 15.2,
-  "revenue": 500,
   "fuel_cost": 45.6
 }
 
