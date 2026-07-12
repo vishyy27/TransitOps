@@ -14,6 +14,7 @@ interface State {
     dailyDigest: boolean;
     dispatchAlerts: boolean;
     darkMode: boolean;
+    expiringLicenseReminders: boolean;
   };
   vehicles: Vehicle[];
   drivers: Driver[];
@@ -65,6 +66,7 @@ const seedState: State = {
     dailyDigest: true,
     dispatchAlerts: true,
     darkMode: false,
+    expiringLicenseReminders: true,
   },
   vehicles: [
     {
