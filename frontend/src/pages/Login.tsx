@@ -14,7 +14,7 @@ const DEMO_USERS: Record<Role, { email: string; name: string }> = {
 };
 
 export function Login() {
-  const { dispatch } = useStore();
+  const { state, dispatch } = useStore();
   const navigate = useNavigate();
   const [role, setRole] = useState<Role>('Fleet Manager');
   const [email, setEmail] = useState(DEMO_USERS['Fleet Manager'].email);
@@ -24,7 +24,9 @@ export function Login() {
 
   const handleRoleSelect = (selectedRole: Role) => {
     setRole(selectedRole);
-    setEmail(DEMO_USERS[selectedRole].email);
+    // Find the user in our state with this role to prefill email
+    const matchedUser = state.users.find(u => u.role === selectedRole);
+    setEmail(matchedUser ? matchedUser.email : DEMO_USERS[selectedRole].email);
   };
 
   const handleLogin = (e: React.FormEvent) => {
@@ -38,13 +40,33 @@ export function Login() {
 
     setLoading(true);
     setTimeout(() => {
+      const user = state.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      
+      if (!user) {
+        setError('No staff account found with this email.');
+        setLoading(false);
+        return;
+      }
+
+      if (user.password !== password) {
+        setError('Entered password is incorrect.');
+        setLoading(false);
+        return;
+      }
+
+      if (user.status === 'Suspended') {
+        setError('This account is suspended. Contact administration.');
+        setLoading(false);
+        return;
+      }
+
       dispatch({
         type: 'LOGIN',
         payload: {
-          id: Math.random().toString(36).substr(2, 9),
-          name: DEMO_USERS[role].name,
-          email,
-          role
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role
         }
       });
       navigate('/dashboard');

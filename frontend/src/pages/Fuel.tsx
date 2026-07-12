@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import { useStore } from '../store';
-import { Plus, X, Fuel as FuelIcon, Receipt, Calendar, CreditCard, DollarSign } from 'lucide-react';
+import { Plus, X, Fuel as FuelIcon, Receipt, Calendar, CreditCard, DollarSign, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '../lib/utils';
+import { FuelLog, Expense } from '../types';
 
 export function Fuel() {
   const { state } = useStore();
   const [tab, setTab] = useState<'fuel' | 'expenses'>('fuel');
   const [isFuelModalOpen, setIsFuelModalOpen] = useState(false);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+  const [isFuelEditModalOpen, setIsFuelEditModalOpen] = useState(false);
+  const [isExpenseEditModalOpen, setIsExpenseEditModalOpen] = useState(false);
+  const [editingFuelLog, setEditingFuelLog] = useState<FuelLog | null>(null);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
   return (
     <div className="space-y-6 selection:bg-accent/20">
@@ -67,7 +72,12 @@ export function Fuel() {
                       <td className="py-4 px-5 text-slate-900 font-medium">{format(new Date(log.date), 'MMM d, yyyy')}</td>
                       <td className="py-4 px-5 font-semibold text-slate-900 font-mono">{vehicle?.registrationNumber || 'Unknown'}</td>
                       <td className="py-4 px-5 text-slate-900 font-semibold font-mono">{log.liters.toFixed(1)} L</td>
-                      <td className="py-4 px-5 font-bold text-slate-900 font-mono">${log.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="py-4 px-5 font-bold text-slate-900 font-mono flex items-center justify-between gap-3">
+                        <span>${log.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        <button onClick={() => { setEditingFuelLog(log); setIsFuelEditModalOpen(true); }} className="inline-flex items-center gap-2 px-3 py-2 border border-slate-200 rounded-full text-xs font-semibold text-slate-500 hover:text-slate-900 hover:border-slate-300 transition-colors">
+                          <Edit className="w-3.5 h-3.5" /> Edit
+                        </button>
+                      </td>
                     </tr>
                   )
                 })}
@@ -104,7 +114,12 @@ export function Fuel() {
                         </span>
                       </td>
                       <td className="py-4 px-5 text-slate-900 font-medium">{expense.description}</td>
-                      <td className="py-4 px-5 font-bold text-slate-900 font-mono">${expense.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="py-4 px-5 font-bold text-slate-900 font-mono flex items-center justify-between gap-3">
+                        <span>${expense.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        <button onClick={() => { setEditingExpense(expense); setIsExpenseEditModalOpen(true); }} className="inline-flex items-center gap-2 px-3 py-2 border border-slate-200 rounded-full text-xs font-semibold text-slate-500 hover:text-slate-900 hover:border-slate-300 transition-colors">
+                          <Edit className="w-3.5 h-3.5" /> Edit
+                        </button>
+                      </td>
                     </tr>
                   )
                 })}
@@ -121,6 +136,134 @@ export function Fuel() {
 
       {isFuelModalOpen && <AddFuelModal onClose={() => setIsFuelModalOpen(false)} />}
       {isExpenseModalOpen && <AddExpenseModal onClose={() => setIsExpenseModalOpen(false)} />}
+      {isFuelEditModalOpen && editingFuelLog && <EditFuelModal fuelLog={editingFuelLog} onClose={() => { setIsFuelEditModalOpen(false); setEditingFuelLog(null); }} />}
+      {isExpenseEditModalOpen && editingExpense && <EditExpenseModal expense={editingExpense} onClose={() => { setIsExpenseEditModalOpen(false); setEditingExpense(null); }} />}
+    </div>
+  );
+}
+
+function EditFuelModal({ fuelLog, onClose }: { fuelLog: FuelLog; onClose: () => void }) {
+  const { state, dispatch } = useStore();
+  const [formData, setFormData] = useState<FuelLog>({ ...fuelLog });
+
+  const availableVehicles = state.vehicles.filter(v => v.status !== 'Retired' || v.id === fuelLog.vehicleId);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    dispatch({ type: 'UPDATE_FUEL_LOG', payload: { ...fuelLog, ...formData } });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="soft-card w-full max-w-sm overflow-hidden shadow-2xl border border-slate-200 bg-white">
+        <div className="flex justify-between items-center p-5 border-b border-slate-200 bg-transparent/60">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 bg-white rounded-3xl text-accent">
+              <FuelIcon className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold font-display text-slate-900">Edit Fuel Log</h2>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-white rounded-3xl text-slate-500 transition-colors cursor-pointer">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 text-sm font-medium">
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Vehicle</label>
+            <select required value={formData.vehicleId} onChange={e => setFormData({ ...formData, vehicleId: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium cursor-pointer">
+              <option value="" disabled>Select vehicle</option>
+              {availableVehicles.map(v => (
+                <option key={v.id} value={v.id}>{v.registrationNumber} - {v.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Refuel Date</label>
+            <input required type="date" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Liters</label>
+              <input required type="number" min="0" step="0.1" value={formData.liters} onChange={e => setFormData({ ...formData, liters: parseFloat(e.target.value) || 0 })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Total Cost</label>
+              <input required type="number" min="0" step="0.01" value={formData.cost} onChange={e => setFormData({ ...formData, cost: parseFloat(e.target.value) || 0 })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+            </div>
+          </div>
+          <div className="pt-4 flex justify-end gap-3 border-t border-slate-200/5">
+            <button type="button" onClick={onClose} className="px-4.5 py-2.5 text-slate-500 soft-table-row rounded-full transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Cancel</button>
+            <button type="submit" className="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider">Save Fuel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function EditExpenseModal({ expense, onClose }: { expense: Expense; onClose: () => void }) {
+  const { state, dispatch } = useStore();
+  const [formData, setFormData] = useState<Expense>({ ...expense });
+
+  const availableVehicles = state.vehicles.filter(v => v.status !== 'Retired' || v.id === expense.vehicleId);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    dispatch({ type: 'UPDATE_EXPENSE', payload: { ...expense, ...formData } });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="soft-card w-full max-w-sm overflow-hidden shadow-2xl border border-slate-200 bg-white">
+        <div className="flex justify-between items-center p-5 border-b border-slate-200 bg-transparent/60">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 bg-white rounded-3xl text-accent">
+              <CreditCard className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold font-display text-slate-900">Edit Expense</h2>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-white rounded-3xl text-slate-500 transition-colors cursor-pointer">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 text-sm font-medium">
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Vehicle</label>
+            <select required value={formData.vehicleId} onChange={e => setFormData({ ...formData, vehicleId: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium cursor-pointer">
+              <option value="" disabled>Select vehicle</option>
+              {availableVehicles.map(v => (
+                <option key={v.id} value={v.id}>{v.registrationNumber} - {v.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Expense Type</label>
+            <select required value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium cursor-pointer">
+              <option>Toll</option>
+              <option>Parking</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Expense Date</label>
+            <input required type="date" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Description</label>
+            <input required type="text" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Amount</label>
+            <input required type="number" min="0" step="0.01" value={formData.amount} onChange={e => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+          </div>
+          <div className="pt-4 flex justify-end gap-3 border-t border-slate-200/5">
+            <button type="button" onClick={onClose} className="px-4.5 py-2.5 text-slate-500 soft-table-row rounded-full transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Cancel</button>
+            <button type="submit" className="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider">Save Expense</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

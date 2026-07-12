@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { useStore } from '../store';
-import { Plus, X, Check, Search, Download, Wrench } from 'lucide-react';
+import { Plus, X, Check, Search, Download, Wrench, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '../components/Badge';
 import { exportToCSV } from '../lib/export';
+import { MaintenanceRecord } from '../types';
 
 export function Maintenance() {
   const { state, dispatch } = useStore();
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<MaintenanceRecord | null>(null);
 
   // Define filteredRecords to fix the crash and add a search functionality
   const filteredRecords = state.maintenanceRecords.filter(record => {
@@ -85,7 +88,13 @@ export function Maintenance() {
                     <td className="py-4 px-5">
                       <Badge status={record.status} />
                     </td>
-                    <td className="py-4 px-5 text-right">
+                    <td className="py-4 px-5 text-right space-y-2">
+                      <button
+                        onClick={() => { setEditingRecord(record); setIsEditModalOpen(true); }}
+                        className="text-xs font-bold text-slate-500 hover:text-slate-900 uppercase tracking-wider flex items-center justify-end gap-1 ml-auto cursor-pointer"
+                      >
+                        <Edit className="w-4 h-4 shrink-0" /> Edit
+                      </button>
                       {record.status === 'Active' && (
                         <button 
                           onClick={() => dispatch({ type: 'CLOSE_MAINTENANCE', payload: record.id })}
@@ -110,6 +119,9 @@ export function Maintenance() {
 
       {isModalOpen && (
         <CreateMaintenanceModal onClose={() => setIsModalOpen(false)} />
+      )}
+      {isEditModalOpen && editingRecord && (
+        <EditMaintenanceModal record={editingRecord} onClose={() => { setIsEditModalOpen(false); setEditingRecord(null); }} />
       )}
     </div>
   );
@@ -205,3 +217,66 @@ function CreateMaintenanceModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+function EditMaintenanceModal({ record, onClose }: { record: MaintenanceRecord; onClose: () => void }) {
+  const { dispatch } = useStore();
+  const [formData, setFormData] = useState<MaintenanceRecord>({ ...record });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    dispatch({ type: 'UPDATE_MAINTENANCE', payload: { ...record, ...formData } });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-[32px] shadow-xl w-full max-w-md overflow-hidden border border-slate-200">
+        <div className="flex justify-between items-center p-5 border-b border-slate-200 bg-transparent/60">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 bg-white rounded-3xl text-accent">
+              <Edit className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold font-display text-slate-900">Edit Maintenance Log</h2>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-white rounded-3xl text-slate-500 transition-colors cursor-pointer">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 text-sm font-medium">
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Vehicle</label>
+            <input disabled value={record.vehicleId} className="w-full px-3.5 py-2.5 soft-input bg-slate-50 font-medium" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Service Type</label>
+            <input required value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Description</label>
+            <textarea required value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={3} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Cost</label>
+              <input required type="number" min="0" value={formData.cost} onChange={e => setFormData({ ...formData, cost: parseFloat(e.target.value) || 0 })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Date</label>
+              <input required type="date" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Status</label>
+            <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value as MaintenanceRecord['status'] })} className="w-full px-3.5 py-2.5 soft-input font-medium cursor-pointer">
+              <option value="Active">Active</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+          <div className="pt-4 flex justify-end gap-3 border-t border-slate-200/5">
+            <button type="button" onClick={onClose} className="px-4.5 py-2.5 text-slate-500 soft-table-row rounded-full transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Cancel</button>
+            <button type="submit" className="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

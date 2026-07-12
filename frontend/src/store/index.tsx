@@ -3,7 +3,7 @@ import {
   User, Vehicle, Driver, Trip, MaintenanceRecord, 
   FuelLog, Expense, ActivityLog, Customer, Invoice
 } from '../types';
-import toast from 'react-hot-toast';
+
 import { format } from 'date-fns';
 
 interface State {
@@ -24,6 +24,7 @@ interface State {
   activityLogs: ActivityLog[];
   customers: Customer[];
   invoices: Invoice[];
+  users: User[];
 }
 
 type Action = 
@@ -37,16 +38,23 @@ type Action =
   | { type: 'ADD_DRIVER'; payload: Driver }
   | { type: 'UPDATE_DRIVER'; payload: Driver }
   | { type: 'CREATE_TRIP'; payload: Trip }
+  | { type: 'UPDATE_TRIP'; payload: Trip }
   | { type: 'DISPATCH_TRIP'; payload: string }
   | { type: 'COMPLETE_TRIP'; payload: { tripId: string, finalOdometer: number, fuelConsumed: number, date: string, fuelCost: number } }
   | { type: 'CANCEL_TRIP'; payload: string }
   | { type: 'CREATE_MAINTENANCE'; payload: MaintenanceRecord }
+  | { type: 'UPDATE_MAINTENANCE'; payload: MaintenanceRecord }
   | { type: 'CLOSE_MAINTENANCE'; payload: string }
   | { type: 'ADD_FUEL_LOG'; payload: FuelLog }
+  | { type: 'UPDATE_FUEL_LOG'; payload: FuelLog }
   | { type: 'ADD_EXPENSE'; payload: Expense }
+  | { type: 'UPDATE_EXPENSE'; payload: Expense }
   | { type: 'ADD_CUSTOMER'; payload: Customer }
   | { type: 'UPDATE_CUSTOMER'; payload: Customer }
   | { type: 'DELETE_CUSTOMER'; payload: string }
+  | { type: 'ADD_USER_ACCOUNT'; payload: User }
+  | { type: 'UPDATE_USER_ACCOUNT'; payload: User }
+  | { type: 'DELETE_USER_ACCOUNT'; payload: string }
   | { type: 'ADD_INVOICE'; payload: Invoice };
 
 const seedState: State = {
@@ -183,7 +191,7 @@ const seedState: State = {
       cargoWeight: 450,
       plannedDistance: 1300,
       status: 'Completed',
-      date: '2026-07-10',
+      startDate: '2026-07-10',
     },
     {
       id: 't3',
@@ -194,7 +202,7 @@ const seedState: State = {
       cargoWeight: 600,
       plannedDistance: 1000,
       status: 'Draft',
-      date: '2026-07-11',
+      startDate: '2026-07-11',
     }
   ],
   maintenanceRecords: [
@@ -296,6 +304,12 @@ const seedState: State = {
     { id: 'INV-1002', customerId: 'c2', tripId: 't2', amount: 3200, issueDate: '2026-06-15', dueDate: '2026-06-30', status: 'Overdue' },
     { id: 'INV-1003', customerId: 'c1', tripId: 't3', amount: 8900, issueDate: '2026-06-01', dueDate: '2026-06-15', status: 'Paid' },
   ],
+  users: [
+    { id: 'u1', name: 'Marcus (Manager)', email: 'manager@transitops.com', role: 'Fleet Manager', password: 'password123', status: 'Active' },
+    { id: 'u2', name: 'Alex (Driver)', email: 'driver@transitops.com', role: 'Driver', password: 'password123', status: 'Active' },
+    { id: 'u3', name: 'Sarah (Officer)', email: 'safety@transitops.com', role: 'Safety Officer', password: 'password123', status: 'Active' },
+    { id: 'u4', name: 'Elena (Analyst)', email: 'finance@transitops.com', role: 'Financial Analyst', password: 'password123', status: 'Active' },
+  ]
 };
 
 function logActivity(state: State, message: string, type: ActivityLog['type']): ActivityLog[] {
@@ -313,59 +327,67 @@ function reducer(state: State, action: Action): State {
     case 'LOGIN':
       return { ...state, currentUser: action.payload };
     case 'UPDATE_USER':
-      toast.success('Profile updated');
+
       return { ...state, currentUser: action.payload };
     case 'UPDATE_WORKSPACE_PREFERENCES':
-      toast.success('Workspace preferences saved');
+
       return { ...state, workspacePreferences: action.payload };
     case 'LOGOUT':
       return { ...state, currentUser: null };
       
     case 'ADD_VEHICLE':
-      toast.success('Vehicle added successfully');
+
       return { ...state, vehicles: [...state.vehicles, action.payload] };
       
     case 'UPDATE_VEHICLE':
-      toast.success('Vehicle updated');
+
       return {
         ...state,
         vehicles: state.vehicles.map(v => v.id === action.payload.id ? action.payload : v)
       };
       
     case 'RETIRE_VEHICLE':
-      toast.success('Vehicle retired');
+
       return {
         ...state,
         vehicles: state.vehicles.map(v => v.id === action.payload ? { ...v, status: 'Retired' } : v)
       };
 
     case 'ADD_DRIVER':
-      toast.success('Driver added successfully');
+
       return { ...state, drivers: [...state.drivers, action.payload] };
       
     case 'UPDATE_DRIVER':
-      toast.success('Driver updated');
+
       return {
         ...state,
         drivers: state.drivers.map(d => d.id === action.payload.id ? action.payload : d)
       };
 
     case 'CREATE_TRIP':
-      toast.success('Trip created');
+
       return { 
         ...state, 
         trips: [...state.trips, action.payload],
         activityLogs: logActivity(state, `Trip created to ${action.payload.destination}`, 'Trip')
       };
 
+    case 'UPDATE_TRIP':
+
+      return {
+        ...state,
+        trips: state.trips.map(t => t.id === action.payload.id ? action.payload : t),
+        activityLogs: logActivity(state, `Trip updated: ${action.payload.source} → ${action.payload.destination}`, 'Trip')
+      };
+
     case 'DISPATCH_TRIP': {
       const trip = state.trips.find(t => t.id === action.payload);
       if (!trip) return state;
       
-      toast.success('Trip dispatched!');
+
       return {
         ...state,
-        trips: state.trips.map(t => t.id === action.payload ? { ...t, status: 'Dispatched', startDate: new Date().toISOString() } : t),
+        trips: state.trips.map(t => t.id === action.payload ? { ...t, status: 'Dispatched', date: new Date().toISOString() } : t),
         vehicles: state.vehicles.map(v => v.id === trip.vehicleId ? { ...v, status: 'On Trip' } : v),
         drivers: state.drivers.map(d => d.id === trip.driverId ? { ...d, status: 'On Trip' } : d),
         activityLogs: logActivity(state, `Trip to ${trip.destination} dispatched`, 'Trip')
@@ -377,7 +399,7 @@ function reducer(state: State, action: Action): State {
       const trip = state.trips.find(t => t.id === tripId);
       if (!trip) return state;
 
-      toast.success('Trip completed');
+
       
       // Auto-create a fuel log based on the trip's fuel consumption
       const fuelLog: FuelLog | null = fuelConsumed > 0 ? {
@@ -402,7 +424,7 @@ function reducer(state: State, action: Action): State {
       const trip = state.trips.find(t => t.id === action.payload);
       if (!trip) return state;
 
-      toast.success('Trip cancelled');
+
       return {
         ...state,
         trips: state.trips.map(t => t.id === action.payload ? { ...t, status: 'Cancelled' } : t),
@@ -414,7 +436,7 @@ function reducer(state: State, action: Action): State {
     }
 
     case 'CREATE_MAINTENANCE': {
-      toast.success('Maintenance record created');
+
       return {
         ...state,
         maintenanceRecords: [...state.maintenanceRecords, action.payload],
@@ -425,11 +447,19 @@ function reducer(state: State, action: Action): State {
       };
     }
 
+    case 'UPDATE_MAINTENANCE': {
+      return {
+        ...state,
+        maintenanceRecords: state.maintenanceRecords.map(record => record.id === action.payload.id ? action.payload : record),
+        activityLogs: logActivity(state, `Maintenance record updated`, 'Maintenance')
+      };
+    }
+
     case 'CLOSE_MAINTENANCE': {
       const record = state.maintenanceRecords.find(m => m.id === action.payload);
       if (!record) return state;
 
-      toast.success('Maintenance closed');
+
       return {
         ...state,
         maintenanceRecords: state.maintenanceRecords.map(m => m.id === action.payload ? { ...m, status: 'Closed' } : m),
@@ -445,29 +475,52 @@ function reducer(state: State, action: Action): State {
     }
 
     case 'ADD_FUEL_LOG':
-      toast.success('Fuel log added');
+
       return { ...state, fuelLogs: [...state.fuelLogs, action.payload] };
 
+    case 'UPDATE_FUEL_LOG':
+
+      return { ...state, fuelLogs: state.fuelLogs.map(log => log.id === action.payload.id ? action.payload : log) };
+
     case 'ADD_EXPENSE':
-      toast.success('Expense added');
+
       return { ...state, expenses: [...state.expenses, action.payload] };
+
+    case 'UPDATE_EXPENSE':
+
+      return { ...state, expenses: state.expenses.map(expense => expense.id === action.payload.id ? action.payload : expense) };
     case 'ADD_CUSTOMER':
-      toast.success('Customer added successfully');
+
       return { ...state, customers: [...state.customers, action.payload] };
     case 'UPDATE_CUSTOMER':
-      toast.success('Client updated');
+
       return {
         ...state,
         customers: state.customers.map(c => c.id === action.payload.id ? action.payload : c)
       };
     case 'DELETE_CUSTOMER':
-      toast.success('Client removed');
+
       return {
         ...state,
         customers: state.customers.filter(c => c.id !== action.payload)
       };
+    case 'ADD_USER_ACCOUNT':
+      toast.success('Staff account created successfully');
+      return { ...state, users: [...state.users, action.payload] };
+    case 'UPDATE_USER_ACCOUNT':
+      toast.success('Staff account updated');
+      return {
+        ...state,
+        users: state.users.map(u => u.id === action.payload.id ? action.payload : u)
+      };
+    case 'DELETE_USER_ACCOUNT':
+      toast.success('Staff account removed');
+      return {
+        ...state,
+        users: state.users.filter(u => u.id !== action.payload)
+      };
     case 'ADD_INVOICE':
-      toast.success('Invoice generated');
+
       return { ...state, invoices: [...state.invoices, action.payload] };
 
     default:
@@ -483,13 +536,13 @@ const StoreContext = createContext<{
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, seedState, () => {
     try {
-      const saved = localStorage.getItem('transitops-demo-state-v2');
+      const saved = localStorage.getItem('transitops-demo-state-v3');
       return saved ? { ...seedState, ...JSON.parse(saved), workspacePreferences: { ...seedState.workspacePreferences, ...JSON.parse(saved).workspacePreferences } } : seedState;
     } catch { return seedState; }
   });
 
   useEffect(() => {
-    localStorage.setItem('transitops-demo-state-v2', JSON.stringify(state));
+    localStorage.setItem('transitops-demo-state-v3', JSON.stringify(state));
   }, [state]);
 
   return (

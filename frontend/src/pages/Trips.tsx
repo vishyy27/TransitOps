@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../store';
-import { Plus, X, ArrowRight, CheckCircle, XCircle, MapPin, Gauge, ShieldAlert, Calendar, Download } from 'lucide-react';
-import { TripStatus } from '../types';
+import { Plus, X, ArrowRight, CheckCircle, XCircle, MapPin, Gauge, ShieldAlert, Calendar, Download, Edit } from 'lucide-react';
+import { TripStatus, Trip } from '../types';
 import { cn } from '../lib/utils';
 import { Badge } from '../components/Badge';
 import { exportToCSV } from '../lib/export';
@@ -9,6 +9,8 @@ import { exportToCSV } from '../lib/export';
 export function Trips() {
   const { state, dispatch } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
   const [completeModalTrip, setCompleteModalTrip] = useState<string | null>(null);
 
   const columns: { id: TripStatus; label: string; color: string; bg: string }[] = [
@@ -123,6 +125,11 @@ export function Trips() {
                         <span className="font-mono text-slate-500 bg-transparent border border-slate-200 px-2 py-0.5 rounded-md">{vehicle?.registrationNumber || 'Unknown'}</span>
                         <span className="text-slate-900/80">{driver?.name || 'Unassigned'}</span>
                       </div>
+                      <div className="pt-3 flex justify-end">
+                        <button onClick={() => { setEditingTrip(trip); setIsEditModalOpen(true); }} className="px-3 py-2 text-slate-500 hover:text-slate-900 rounded-3xl transition-colors border border-slate-200 cursor-pointer text-xs font-bold uppercase tracking-wider">
+                          <Edit className="w-3.5 h-3.5 inline-block mr-1" /> Edit
+                        </button>
+                      </div>
 
                       {/* Dispatched Actions */}
                       {trip.status === 'Draft' && (
@@ -175,7 +182,102 @@ export function Trips() {
       </div>
 
       {isModalOpen && <CreateTripModal onClose={() => setIsModalOpen(false)} />}
+      {isEditModalOpen && editingTrip && <EditTripModal trip={editingTrip} onClose={() => { setIsEditModalOpen(false); setEditingTrip(null); }} />}
       {completeModalTrip && <CompleteTripModal tripId={completeModalTrip} onClose={() => setCompleteModalTrip(null)} />}
+    </div>
+  );
+}
+
+function EditTripModal({ trip, onClose }: { trip: Trip; onClose: () => void }) {
+  const { state, dispatch } = useStore();
+  const [formData, setFormData] = useState<Trip>({ ...trip });
+  const [error, setError] = useState('');
+
+  const availableVehicles = state.vehicles.filter(v => v.status !== 'Retired' || v.id === trip.vehicleId);
+  const availableDrivers = state.drivers.filter(d => d.status !== 'Suspended' || d.id === trip.driverId);
+  const selectedVehicle = state.vehicles.find(v => v.id === formData.vehicleId);
+  const isWeightExceeded = selectedVehicle ? formData.cargoWeight > selectedVehicle.maxLoadCapacity : false;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isWeightExceeded) {
+      setError(`Cargo weight exceeds vehicle capacity (${selectedVehicle?.maxLoadCapacity}kg).`);
+      return;
+    }
+    dispatch({ type: 'UPDATE_TRIP', payload: { ...trip, ...formData } });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="soft-card w-full max-w-md backdrop-blur-[20px] bg-white/60 overflow-hidden shadow-2xl">
+        <div className="flex justify-between items-center p-5 border-b border-slate-200 bg-transparent/60">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 bg-white rounded-3xl text-accent">
+              <Edit className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold font-display text-slate-900">Edit Trip</h2>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-white rounded-3xl text-slate-500 transition-colors cursor-pointer">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 text-sm font-medium">
+          {error && <div className="p-3 bg-red-50 text-red-600 rounded-full text-xs font-semibold border border-red-100">{error}</div>}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Source</label>
+              <input required type="text" value={formData.source} onChange={e => setFormData({ ...formData, source: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Destination</label>
+              <input required type="text" value={formData.destination} onChange={e => setFormData({ ...formData, destination: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Vehicle</label>
+            <select required value={formData.vehicleId} onChange={e => setFormData({ ...formData, vehicleId: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium cursor-pointer">
+              <option value="" disabled>Select vehicle</option>
+              {availableVehicles.map(v => (
+                <option key={v.id} value={v.id}>{v.registrationNumber} - {v.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Driver</label>
+            <select required value={formData.driverId} onChange={e => setFormData({ ...formData, driverId: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium cursor-pointer">
+              <option value="" disabled>Select driver</option>
+              {availableDrivers.map(d => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Cargo Weight (kg)</label>
+              <input required type="number" min="0" value={formData.cargoWeight} onChange={e => setFormData({ ...formData, cargoWeight: parseInt(e.target.value) || 0 })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Planned Distance (km)</label>
+              <input required type="number" min="0" value={formData.plannedDistance} onChange={e => setFormData({ ...formData, plannedDistance: parseInt(e.target.value) || 0 })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Status</label>
+            <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value as Trip['status'] })} className="w-full px-3.5 py-2.5 soft-input font-medium cursor-pointer">
+              <option value="Draft">Draft</option>
+              <option value="Dispatched">Dispatched</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div className="pt-4 flex justify-end gap-3 border-t border-slate-200/5">
+            <button type="button" onClick={onClose} className="px-4.5 py-2.5 soft-button-secondary font-semibold text-xs uppercase tracking-wider cursor-pointer">Cancel</button>
+            <button type="submit" disabled={isWeightExceeded} className="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Trip</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

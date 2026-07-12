@@ -19,6 +19,7 @@ import { Fuel } from './pages/Fuel';
 import { Reports } from './pages/Reports';
 import { Customers } from './pages/Customers';
 import { Invoices } from './pages/Invoices';
+import { Users } from './pages/Users';
 import { ProfileSettings, WorkspacePreferences } from './pages/Settings';
 
 export default function App() {
@@ -36,10 +37,11 @@ export default function App() {
             <Route path="maintenance" element={<Maintenance />} />
             <Route path="fuel" element={<Fuel />} />
             <Route path="reports" element={<Reports />} />
-          <Route path="customers" element={<Customers />} />
-          <Route path="invoices" element={<Invoices />} />
-          <Route path="profile-settings" element={<ProfileSettings />} />
-          <Route path="workspace-preferences" element={<WorkspacePreferences />} />
+            <Route path="customers" element={<Customers />} />
+            <Route path="invoices" element={<Invoices />} />
+            <Route path="users" element={<Users />} />
+            <Route path="profile-settings" element={<ProfileSettings />} />
+            <Route path="workspace-preferences" element={<WorkspacePreferences />} />
           </Route>
         </Routes>
       </BrowserRouter>

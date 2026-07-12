@@ -72,18 +72,114 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
 }
 
-/* Frontend-only low-light command view. Kept scoped so embedded dialogs remain legible. */
-.theme-dark { color: #e2e8f0; }
+/* Premium low-light command view (Dark Mode styling system) */
+.theme-dark { 
+  color: #f8fafc; 
+}
+.theme-dark .bg-slate-950 {
+  background-color: #030712 !important;
+}
 .theme-dark .soft-card,
 .theme-dark .soft-inner,
 .theme-dark aside,
 .theme-dark main > div > .bg-white,
-.theme-dark header > div > button { background-color: rgba(30, 41, 59, .88) !important; border-color: rgba(148, 163, 184, .16) !important; }
-.theme-dark .text-slate-900 { color: #f8fafc !important; }
-.theme-dark .text-slate-700 { color: #cbd5e1 !important; }
-.theme-dark .text-slate-500, .theme-dark .text-slate-400 { color: #94a3b8 !important; }
-.theme-dark .bg-white, .theme-dark .bg-slate-50, .theme-dark .bg-\[\#f4f6f9\] { background-color: rgba(30, 41, 59, .82) !important; }
-.theme-dark .border-slate-200, .theme-dark .border-white { border-color: rgba(148, 163, 184, .18) !important; }
+.theme-dark header > div > button { 
+  background-color: rgba(17, 24, 39, 0.8) !important; 
+  backdrop-filter: blur(16px) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important; 
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Override Tailwind white-opacity backgrounds to dark-opacity in dark mode */
+.theme-dark .bg-white\/10 { background-color: rgba(255, 255, 255, 0.08) !important; }
+.theme-dark .bg-white\/40,
+.theme-dark .bg-white\/50,
+.theme-dark .bg-white\/60,
+.theme-dark .bg-white\/65,
+.theme-dark .bg-white\/70,
+.theme-dark .bg-white\/80 { 
+  background-color: rgba(17, 24, 39, 0.6) !important; 
+}
+
+/* High contrast text elements for low-light environment */
+.theme-dark .text-slate-900 { color: #ffffff !important; }
+.theme-dark .text-slate-800 { color: #f8fafc !important; }
+.theme-dark .text-slate-700 { color: #f1f5f9 !important; }
+.theme-dark .text-slate-600 { color: #cbd5e1 !important; }
+.theme-dark .text-slate-500 { color: #a1a1aa !important; }
+.theme-dark .text-slate-400 { color: #94a3b8 !important; }
+
+.theme-dark .bg-white, 
+.theme-dark .bg-slate-50, 
+.theme-dark .soft-table-header,
+.theme-dark .bg-\[\#f4f6f9\] { 
+  background-color: rgba(31, 41, 55, 0.8) !important; 
+}
+.theme-dark tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+.theme-dark tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+.theme-dark .border-slate-100,
+.theme-dark .border-slate-200,
+.theme-dark .border-slate-200\/70,
+.theme-dark .border-slate-200\/60,
+.theme-dark .border-slate-200\/85,
+.theme-dark .border-white\/60,
+.theme-dark .border-white\/70,
+.theme-dark .border-white\/40,
+.theme-dark .border-white { 
+  border-color: rgba(255, 255, 255, 0.08) !important; 
+}
+.theme-dark input,
+.theme-dark select,
+.theme-dark textarea {
+  background-color: rgba(17, 24, 39, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+}
+.theme-dark input::placeholder {
+  color: #64748b !important;
+}
+.theme-dark .hover\:bg-white:hover,
+.theme-dark .hover\:bg-slate-50:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+/* Glow effect for active navigation tab in dark mode */
+.theme-dark aside nav .bg-slate-950 {
+  background-color: #6366f1 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.35) !important;
+}
+
+/* Kanban column header and container overrides */
+.theme-dark .flex-shrink-0 > .bg-white {
+  background-color: rgba(17, 24, 39, 0.9) !important;
+}
+.theme-dark .bg-transparent\/40,
+.theme-dark .bg-sage\/10,
+.theme-dark .bg-sage\/5,
+.theme-dark .bg-accent\/5 {
+  background-color: rgba(17, 24, 39, 0.4) !important;
+}
+
+/* Empty kanban column placeholder container override */
+.theme-dark .bg-slate-100 {
+  background-color: rgba(17, 24, 39, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #94a3b8 !important;
+}
+
+/* Dark mode overrides for custom action buttons */
+.theme-dark .bg-sage {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+}
+.theme-dark .bg-ink {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+  color: #818cf8 !important;
+}
 
 /* Print Styles for Premium PDF Generation */
 @media print {
@@ -152,4 +248,15 @@ h1, h2, h3, h4, h5, h6 {
 
 #invoice-print-section {
   display: none;
+}
+
+@media print {
+  /* Ensure the main container drops its bounds to allow page breaks */
+  .flex-1 {
+    overflow: visible !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
 }

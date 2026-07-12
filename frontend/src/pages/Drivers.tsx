@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../store';
-import { Plus, Search, AlertTriangle, X, Download, UserCheck } from 'lucide-react';
+import { Plus, Search, AlertTriangle, X, Download, UserCheck, Edit } from 'lucide-react';
+import { Driver } from '../types';
 import { cn } from '../lib/utils';
 import { Badge } from '../components/Badge';
 import { exportToCSV } from '../lib/export';
@@ -10,6 +11,37 @@ export function Drivers() {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+
+  const toggleRow = (id: string) => {
+    setSelectedRows(prev => prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]);
+  };
+  
+  const toggleAll = () => {
+    if (selectedRows.length === filteredDrivers.length && filteredDrivers.length > 0) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(filteredDrivers.map(d => d.id));
+    }
+  };
+
+  const handleBatchStatus = (status: string) => {
+    selectedRows.forEach(id => {
+      const driver = state.drivers.find(d => d.id === id);
+      if (driver) {
+        dispatch({ type: 'UPDATE_DRIVER', payload: { ...driver, status } });
+      }
+    });
+    setSelectedRows([]);
+  };
+
+  const handleBatchExport = () => {
+    const toExport = state.drivers.filter(d => selectedRows.includes(d.id));
+    exportToCSV(toExport, 'drivers_export');
+  };
+
 
   const filteredDrivers = state.drivers.filter(d => 
     d.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -19,7 +51,22 @@ export function Drivers() {
   return (
     <div className="space-y-6 selection:bg-accent/20">
       {/* Action Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 soft-card p-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 soft-card p-5 relative">
+        {selectedRows.length > 0 && (
+          <div className="absolute top-0 left-0 w-full h-full bg-slate-900 z-10 rounded-2xl flex items-center justify-between px-6">
+            <div className="flex items-center gap-4">
+              <span className="text-white font-bold text-sm">{selectedRows.length} selected</span>
+              <div className="h-4 w-px bg-slate-700"></div>
+              <button onClick={() => handleBatchStatus('Available')} className="text-xs font-bold text-slate-300 hover:text-white uppercase tracking-wider transition-colors">Set Available</button>
+              <button onClick={() => handleBatchStatus('On Leave')} className="text-xs font-bold text-slate-300 hover:text-white uppercase tracking-wider transition-colors">Set On Leave</button>
+              <button onClick={() => handleBatchStatus('Off Duty')} className="text-xs font-bold text-slate-300 hover:text-white uppercase tracking-wider transition-colors">Set Off Duty</button>
+            </div>
+            <div className="flex items-center gap-4">
+              <button onClick={handleBatchExport} className="text-xs flex items-center gap-1.5 font-bold text-slate-300 hover:text-white uppercase tracking-wider transition-colors"><Download className="w-4 h-4"/> Export CSV</button>
+              <button onClick={() => setSelectedRows([])} className="text-slate-400 hover:text-white"><X className="w-5 h-5"/></button>
+            </div>
+          </div>
+        )}
         <div className="relative w-full sm:w-80">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
           <input 
@@ -55,6 +102,12 @@ export function Drivers() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="soft-table-header text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <th className="py-4 px-5 w-12">
+                  <input type="checkbox" className="rounded border-slate-300 text-accent focus:ring-accent w-4 h-4 cursor-pointer" 
+                    checked={selectedRows.length === filteredDrivers.length && filteredDrivers.length > 0} 
+                    onChange={toggleAll} 
+                  />
+                </th>
                 <th className="py-4 px-5">Driver Name</th>
                 <th className="py-4 px-5">License Number</th>
                 <th className="py-4 px-5">Category</th>
@@ -75,6 +128,12 @@ export function Drivers() {
 
                 return (
                   <tr key={driver.id} className="soft-table-row/35 transition-colors text-sm">
+                    <td className="py-4 px-5">
+                      <input type="checkbox" className="rounded border-slate-300 text-accent focus:ring-accent w-4 h-4 cursor-pointer" 
+                        checked={selectedRows.includes(driver.id)} 
+                        onChange={() => toggleRow(driver.id)} 
+                      />
+                    </td>
                     <td className="py-4 px-5 font-semibold text-slate-900">{driver.name}</td>
                     <td className="py-4 px-5 text-slate-900 font-medium font-mono">{driver.licenseNumber}</td>
                     <td className="py-4 px-5">
@@ -103,7 +162,10 @@ export function Drivers() {
                     <td className="py-4 px-5">
                       <Badge status={driver.status} />
                     </td>
-                    <td className="py-4 px-5 text-right"><button onClick={() => setSelectedDriverId(driver.id)} className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-950">Details</button></td>
+                    <td className="py-4 px-5 text-right flex justify-end gap-2">
+                      <button onClick={() => setSelectedDriverId(driver.id)} className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-950">Details</button>
+                      <button onClick={() => { setEditingDriver(driver); setIsEditModalOpen(true); }} className="text-xs font-bold uppercase tracking-wider text-accent hover:text-accent/80">Edit</button>
+                    </td>
                   </tr>
                 );
               })}
@@ -120,7 +182,99 @@ export function Drivers() {
       {isModalOpen && (
         <AddDriverModal onClose={() => setIsModalOpen(false)} />
       )}
+      {isEditModalOpen && editingDriver && (
+        <EditDriverModal driver={editingDriver} onClose={() => { setEditingDriver(null); setIsEditModalOpen(false); }} />
+      )}
       {selectedDriverId && <DriverDrawer driverId={selectedDriverId} onClose={() => setSelectedDriverId(null)} />}
+    </div>
+  );
+}
+
+function EditDriverModal({ driver, onClose }: { driver: Driver; onClose: () => void }) {
+  const { dispatch } = useStore();
+  const [formData, setFormData] = useState({
+    name: driver.name,
+    licenseNumber: driver.licenseNumber,
+    licenseCategory: driver.licenseCategory,
+    licenseExpiryDate: driver.licenseExpiryDate,
+    contactNumber: driver.contactNumber,
+    status: driver.status,
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    dispatch({
+      type: 'UPDATE_DRIVER',
+      payload: {
+        id: driver.id,
+        ...formData,
+        licenseNumber: formData.licenseNumber.toUpperCase().trim(),
+      }
+    });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="soft-card w-full max-w-md backdrop-blur-[20px] bg-white/60 overflow-hidden shadow-2xl">
+        <div className="flex justify-between items-center p-5 border-b border-slate-200 bg-transparent/60">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 bg-white rounded-3xl text-accent">
+              <Edit className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold font-display text-slate-900">Edit Driver</h2>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-white rounded-3xl text-slate-500 transition-colors cursor-pointer">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 text-sm font-medium">
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Full Name</label>
+              <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">License Number</label>
+              <input required type="text" value={formData.licenseNumber} onChange={e => setFormData({ ...formData, licenseNumber: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">License Category</label>
+                <select value={formData.licenseCategory} onChange={e => setFormData({ ...formData, licenseCategory: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium cursor-pointer">
+                  <option>B</option>
+                  <option>C</option>
+                  <option>C+E</option>
+                  <option>D</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Expiry Date</label>
+                <input required type="date" value={formData.licenseExpiryDate} onChange={e => setFormData({ ...formData, licenseExpiryDate: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium cursor-pointer" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Contact Number</label>
+              <input required type="tel" value={formData.contactNumber} onChange={e => setFormData({ ...formData, contactNumber: e.target.value })} className="w-full px-3.5 py-2.5 soft-input font-medium" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Status</label>
+              <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value as Driver['status'] })} className="w-full px-3.5 py-2.5 soft-input font-medium cursor-pointer">
+                <option value="Available">Available</option>
+                <option value="On Trip">On Trip</option>
+                <option value="Off Duty">Off Duty</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="pt-4 flex justify-end gap-3 border-t border-slate-200/5">
+            <button type="button" onClick={onClose} className="px-4.5 py-2.5 soft-button-secondary font-semibold text-xs uppercase tracking-wider cursor-pointer">Cancel</button>
+            <button type="submit" className="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Changes</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
@@ -174,7 +328,7 @@ function AddDriverModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-[32px] shadow-xl w-full max-w-md overflow-hidden border border-slate-200">
+      <div className="soft-card w-full max-w-md backdrop-blur-[20px] bg-white/60 overflow-hidden shadow-2xl border border-white/40">
         <div className="flex justify-between items-center p-5 border-b border-slate-200 bg-transparent/60">
           <div className="flex items-center gap-2.5">
             <div className="p-1.5 bg-white rounded-3xl text-accent">

@@ -4,7 +4,8 @@ import { useStore } from '../store';
 import { 
   LayoutDashboard, Truck, Users, Map, Wrench, 
   Fuel, BarChart3, LogOut, Menu, Briefcase, FileText,
-  Bell, CheckCheck, ChevronDown, CircleUserRound, Settings, X
+  Bell, CheckCheck, ChevronDown, CircleUserRound, Settings, X,
+  Sun, Moon
 } from 'lucide-react';
 import { cn } from './utils';
 
@@ -18,6 +19,7 @@ const navItems = [
   { path: '/reports', label: 'Reports', icon: BarChart3 },
   { path: '/customers', label: 'Clients', icon: Briefcase },
   { path: '/invoices', label: 'Billing', icon: FileText },
+  { path: '/users', label: 'Staff Accounts', icon: CircleUserRound },
 ];
 
 export function Layout() {
@@ -27,6 +29,7 @@ export function Layout() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [notificationsRead, setNotificationsRead] = useState(false);
+  const [isSignoutConfirmOpen, setIsSignoutConfirmOpen] = useState(false);
 
   const notifications = useMemo(() => {
     const items = [] as { id: string; title: string; detail: string; tone: string }[];
@@ -59,7 +62,7 @@ export function Layout() {
         <Link to="/dashboard" className="flex items-center gap-3 px-3 py-2 mb-6"><div className="w-11 h-11 bg-slate-950 text-white rounded-2xl flex items-center justify-center shadow-md"><Truck className="w-5 h-5" /></div><div><p className="font-display text-base font-bold text-slate-900">TransitOps</p><p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Command center</p></div></Link>
         <p className="px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">Operations</p>
         <nav className="flex-1 space-y-1 overflow-y-auto">{visibleNavItems.map(item => { const active = location.pathname.startsWith(item.path); return <Link key={item.path} to={item.path} className={cn('flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold transition-colors', active ? 'bg-slate-950 text-white shadow-lg shadow-slate-900/10' : 'text-slate-500 hover:bg-white hover:text-slate-900')}><item.icon className="w-[18px] h-[18px]" />{item.label}</Link>; })}</nav>
-        <div className="mt-4 border-t border-slate-200/70 pt-3"><button onClick={() => dispatch({ type: 'LOGOUT' })} className="w-full flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-rose-500 hover:bg-rose-50"><LogOut className="w-[18px] h-[18px]" />Sign out</button></div>
+        <div className="mt-4 border-t border-slate-200/70 pt-3"><button onClick={() => setIsSignoutConfirmOpen(true)} className="w-full flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-rose-500 hover:bg-rose-50 cursor-pointer"><LogOut className="w-[18px] h-[18px]" />Sign out</button></div>
       </aside>
 
       {/* Main App Container */}
@@ -71,7 +74,7 @@ export function Layout() {
             <button
               type="button"
               onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-              className="lg:hidden w-10 h-10 rounded-full bg-white/70 border border-white flex items-center justify-center text-slate-700 hover:bg-white"
+              className="lg:hidden w-10 h-10 rounded-full bg-white/70 border border-white flex items-center justify-center text-slate-700 hover:bg-white cursor-pointer"
               aria-label="Toggle navigation"
               aria-expanded={isMobileNavOpen}
             >
@@ -86,11 +89,32 @@ export function Layout() {
           </div>
           
           <div className="flex items-center gap-2 sm:gap-3">
+             <button
+               type="button"
+               onClick={() => {
+                 dispatch({
+                   type: 'UPDATE_WORKSPACE_PREFERENCES',
+                   payload: {
+                     ...state.workspacePreferences,
+                     darkMode: !state.workspacePreferences.darkMode
+                   }
+                 });
+               }}
+               className="w-10 h-10 rounded-full bg-white/70 backdrop-blur-[12px] flex items-center justify-center text-slate-900 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-white/70 hover:bg-white transition-colors cursor-pointer"
+               aria-label="Toggle theme mode"
+             >
+               {state.workspacePreferences.darkMode ? (
+                 <Sun className="w-[18px] h-[18px] text-amber-500" />
+               ) : (
+                 <Moon className="w-[18px] h-[18px] text-indigo-600" />
+               )}
+             </button>
+
              <div className="relative">
                <button
                  type="button"
                  onClick={() => { setIsNotificationsOpen(!isNotificationsOpen); setIsProfileOpen(false); }}
-                 className="relative w-10 h-10 rounded-full bg-white/70 backdrop-blur-[12px] flex items-center justify-center text-slate-900 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-white/70 hover:bg-white transition-colors"
+                 className="relative w-10 h-10 rounded-full bg-white/70 backdrop-blur-[12px] flex items-center justify-center text-slate-900 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-white/70 hover:bg-white transition-colors cursor-pointer"
                  aria-label={`Notifications, ${unreadCount} unread`}
                  aria-expanded={isNotificationsOpen}
                >
@@ -101,7 +125,7 @@ export function Layout() {
                  <div className="absolute right-0 mt-3 w-[min(22rem,calc(100vw-3rem))] overflow-hidden rounded-3xl border border-white/80 bg-white/95 backdrop-blur-xl shadow-[0_20px_50px_rgba(15,23,42,0.16)]">
                    <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
                      <div><p className="font-display font-bold text-slate-900">Notifications</p><p className="text-xs text-slate-500">Your operations inbox</p></div>
-                     <button type="button" onClick={() => setNotificationsRead(true)} className="text-xs font-bold text-slate-700 hover:text-black flex items-center gap-1"><CheckCheck className="w-4 h-4" /> Mark read</button>
+                     <button type="button" onClick={() => setNotificationsRead(true)} className="text-xs font-bold text-slate-700 hover:text-black flex items-center gap-1 cursor-pointer"><CheckCheck className="w-4 h-4" /> Mark read</button>
                    </div>
                    <div className="p-2 max-h-80 overflow-auto">
                      {notifications.map(item => <div key={item.id} className="flex gap-3 rounded-2xl p-3 hover:bg-slate-50 transition-colors"><span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${item.tone}`} /><div><p className="text-sm font-semibold text-slate-900">{item.title}</p><p className="mt-0.5 text-xs leading-5 text-slate-500">{item.detail}</p></div></div>)}
@@ -111,7 +135,7 @@ export function Layout() {
                )}
              </div>
              <div className="relative">
-               <button type="button" onClick={() => { setIsProfileOpen(!isProfileOpen); setIsNotificationsOpen(false); }} className="flex items-center gap-2 rounded-full p-1 pr-1.5 sm:pr-3 bg-white/70 border border-white/70 hover:bg-white transition-colors" aria-label="Open profile menu" aria-expanded={isProfileOpen}>
+               <button type="button" onClick={() => { setIsProfileOpen(!isProfileOpen); setIsNotificationsOpen(false); }} className="flex items-center gap-2 rounded-full p-1 pr-1.5 sm:pr-3 bg-white/70 border border-white/70 hover:bg-white transition-colors cursor-pointer" aria-label="Open profile menu" aria-expanded={isProfileOpen}>
                  <div className="w-9 h-9 rounded-full bg-slate-950 text-white flex items-center justify-center font-bold font-display shadow-sm">{state.currentUser.name.charAt(0).toUpperCase()}</div>
                  <div className="hidden sm:block text-left max-w-28"><p className="text-xs font-bold text-slate-900 truncate">{state.currentUser.name}</p><p className="text-[10px] text-slate-500 truncate">{state.currentUser.role}</p></div>
                  <ChevronDown className="hidden sm:block w-4 h-4 text-slate-400" />
@@ -127,13 +151,53 @@ export function Layout() {
           </div>
         </header>
 
-        {isMobileNavOpen && <nav className="lg:hidden mx-5 mb-4 rounded-3xl bg-white/80 border border-white p-2 grid grid-cols-2 sm:grid-cols-3 gap-1 shadow-sm">{visibleNavItems.map(item => <Link key={item.path} to={item.path} onClick={() => setIsMobileNavOpen(false)} className={cn('flex items-center gap-2 rounded-2xl px-3 py-3 text-xs font-bold', location.pathname.startsWith(item.path) ? 'bg-slate-950 text-white' : 'text-slate-600 hover:bg-white')}><item.icon className="w-4 h-4" />{item.label}</Link>)}</nav>}
+        {isMobileNavOpen && (
+          <nav className="lg:hidden mx-5 mb-4 rounded-3xl bg-white/80 border border-white p-2 grid grid-cols-2 sm:grid-cols-3 gap-1 shadow-sm">
+            {visibleNavItems.map(item => (
+              <Link key={item.path} to={item.path} onClick={() => setIsMobileNavOpen(false)} className={cn('flex items-center gap-2 rounded-2xl px-3 py-3 text-xs font-bold', location.pathname.startsWith(item.path) ? 'bg-slate-950 text-white' : 'text-slate-600 hover:bg-white')}><item.icon className="w-4 h-4" />{item.label}</Link>
+            ))}
+            <button onClick={() => { setIsMobileNavOpen(false); setIsSignoutConfirmOpen(true); }} className="col-span-full flex items-center justify-center gap-2 rounded-2xl px-3 py-3 text-xs font-bold text-rose-500 hover:bg-rose-50 cursor-pointer border border-rose-100 mt-1"><LogOut className="w-4 h-4" />Sign out</button>
+          </nav>
+        )}
 
         {/* Content Area */}
         <main className="flex-1 overflow-auto p-4 sm:p-10 pt-0">
            <Outlet />
         </main>
       </div>
+
+      {/* Sign Out Confirmation Modal */}
+      {isSignoutConfirmOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="soft-card w-full max-w-sm backdrop-blur-[20px] bg-white/60 overflow-hidden shadow-2xl p-6 text-center">
+            <div className="mx-auto w-12 h-12 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mb-4 border border-rose-100">
+              <LogOut className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 font-display">Confirm Sign Out</h3>
+            <p className="text-xs text-slate-500 font-semibold mt-2">Are you sure you want to log out of your TransitOps Command session?</p>
+            
+            <div className="mt-6 flex justify-center gap-3">
+              <button 
+                type="button" 
+                onClick={() => setIsSignoutConfirmOpen(false)} 
+                className="px-4 py-2.5 soft-button-secondary font-semibold text-xs uppercase tracking-wider cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                onClick={() => {
+                  setIsSignoutConfirmOpen(false);
+                  dispatch({ type: 'LOGOUT' });
+                }} 
+                className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs uppercase tracking-wider rounded-full shadow-md cursor-pointer"
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

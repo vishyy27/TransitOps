@@ -61,6 +61,12 @@ export function Reports() {
     document.body.removeChild(link);
   };
 
+  const isDark = state.workspacePreferences.darkMode;
+  const barColor1 = isDark ? '#818cf8' : '#000000';
+  const barColor2 = isDark ? '#34d399' : '#64748b';
+  const axisColor = isDark ? '#94a3b8' : '#475569';
+  const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : '#E2E8F0';
+
   return (
     <div className="space-y-6 selection:bg-black/20">
       {/* Reports Header */}
@@ -80,7 +86,7 @@ export function Reports() {
             onClick={() => window.print()}
             className="flex items-center justify-center gap-2 px-4 py-2.5 soft-button-secondary font-semibold text-xs uppercase tracking-wider flex-1 sm:flex-initial cursor-pointer"
           >
-            <Printer className="w-4 h-4 text-slate-400" /> Export PDF
+            <Printer className="w-4 h-4 text-slate-400" /> Print
           </button>
           <button 
             onClick={handleExportCSV}
@@ -99,11 +105,11 @@ export function Reports() {
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={vehicleStats} layout="vertical" margin={{ left: -10, right: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
-                <XAxis type="number" stroke="#475569" fontSize={11} tickLine={false} axisLine={false} fontClassName="font-semibold" />
-                <YAxis dataKey="name" type="category" stroke="#475569" fontSize={11} tickLine={false} axisLine={false} fontClassName="font-semibold font-mono" />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={gridColor} />
+                <XAxis type="number" stroke={axisColor} fontSize={11} tickLine={false} axisLine={false} fontClassName="font-semibold" />
+                <YAxis dataKey="name" type="category" stroke={axisColor} fontSize={11} tickLine={false} axisLine={false} fontClassName="font-semibold font-mono" />
                 <Tooltip contentStyle={{ background: '#0F172A', color: '#FFF', borderRadius: '12px', border: 'none', boxShadow: '0 8px 16px -4px rgba(0,0,0,0.15)' }} />
-                <Bar dataKey="totalOpCost" fill="#000000" radius={[0, 6, 6, 0]} name="Total Cost ($)" />
+                <Bar dataKey="totalOpCost" fill={barColor1} radius={[0, 6, 6, 0]} name="Total Cost ($)" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -115,11 +121,11 @@ export function Reports() {
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={vehicleStats} layout="vertical" margin={{ left: -10, right: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
-                <XAxis type="number" stroke="#475569" fontSize={11} tickLine={false} axisLine={false} fontClassName="font-semibold" />
-                <YAxis dataKey="name" type="category" stroke="#475569" fontSize={11} tickLine={false} axisLine={false} fontClassName="font-semibold font-mono" />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={gridColor} />
+                <XAxis type="number" stroke={axisColor} fontSize={11} tickLine={false} axisLine={false} fontClassName="font-semibold" />
+                <YAxis dataKey="name" type="category" stroke={axisColor} fontSize={11} tickLine={false} axisLine={false} fontClassName="font-semibold font-mono" />
                 <Tooltip contentStyle={{ background: '#0F172A', color: '#FFF', borderRadius: '12px', border: 'none', boxShadow: '0 8px 16px -4px rgba(0,0,0,0.15)' }} />
-                <Bar dataKey="fuelEfficiency" fill="#64748b" radius={[0, 6, 6, 0]} name="km / L" />
+                <Bar dataKey="fuelEfficiency" fill={barColor2} radius={[0, 6, 6, 0]} name="km / L" />
               </BarChart>
             </ResponsiveContainer>
           </div>

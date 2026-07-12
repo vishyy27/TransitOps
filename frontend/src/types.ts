@@ -5,6 +5,8 @@ export interface User {
   name: string;
   email: string;
   role: Role;
+  password?: string;
+  status?: 'Active' | 'Suspended';
 }
 
 export type VehicleStatus = 'Available' | 'On Trip' | 'In Shop' | 'Retired';
@@ -43,6 +45,7 @@ export interface Trip {
   status: TripStatus;
   startDate?: string;
   endDate?: string;
+  date?: string;
   finalOdometer?: number;
   fuelConsumed?: number;
 }
