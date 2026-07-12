@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BellRing, Building2, Check, Globe2, Mail, ShieldCheck, UserRound } from 'lucide-react';
 import { useStore } from '../store';
+import { cn } from '../lib/utils';
 
 export function ProfileSettings() {
   const { state, dispatch } = useStore();
@@ -31,7 +32,22 @@ export function WorkspacePreferences() {
   const [preferences, setPreferences] = useState(state.workspacePreferences);
   const toggle = (key: 'dailyDigest' | 'dispatchAlerts' | 'expiringLicenseReminders') => setPreferences(current => ({ ...current, [key]: !current[key] }));
   const save = (event: React.FormEvent) => { event.preventDefault(); dispatch({ type: 'UPDATE_WORKSPACE_PREFERENCES', payload: preferences }); };
-  const Toggle = ({ enabled, onClick }: { enabled: boolean; onClick: () => void }) => <button type="button" onClick={onClick} aria-pressed={enabled} className={`relative w-11 h-6 rounded-full transition-colors ${enabled ? 'bg-slate-950' : 'bg-slate-300'}`}><span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} /></button>;
+  const Toggle = ({ enabled, onClick }: { enabled: boolean; onClick: () => void }) => (
+    <button 
+      type="button" 
+      onClick={onClick} 
+      aria-pressed={enabled} 
+      className={cn(
+        "relative w-11 h-6 rounded-full transition-colors cursor-pointer focus:outline-none", 
+        enabled ? 'bg-slate-950' : 'bg-slate-300'
+      )}
+    >
+      <span className={cn(
+        "absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200", 
+        enabled ? 'translate-x-5' : 'translate-x-0'
+      )} />
+    </button>
+  );
 
   return <div className="max-w-4xl space-y-6">
     <section className="soft-card p-6 sm:p-8"><div className="flex items-start gap-4"><div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center"><Building2 className="w-6 h-6" /></div><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Workspace</p><h2 className="mt-1 font-display text-2xl font-bold text-slate-900">Workspace preferences</h2><p className="mt-1 text-sm text-slate-500">Set how your operations workspace communicates with your team.</p></div></div></section>

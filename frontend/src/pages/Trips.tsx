@@ -150,7 +150,7 @@ export function Trips() {
                         <div className="pt-2.5 flex gap-2">
                           <button 
                             onClick={() => dispatch({ type: 'DISPATCH_TRIP', payload: trip.id })}
-                            className="flex-1 py-2 bg-ink hover:bg-ink/90 text-slate-900 text-xs font-bold rounded-3xl transition-colors cursor-pointer text-center"
+                            className={cn("flex-1 py-2 text-xs font-bold rounded-3xl transition-colors cursor-pointer text-center", state.workspacePreferences.darkMode ? "bg-indigo-600 hover:bg-indigo-500 text-white" : "bg-slate-900 hover:bg-slate-800 text-white")}
                           >
                             Dispatch
                           </button>
@@ -168,7 +168,7 @@ export function Trips() {
                         <div className="pt-2.5 flex gap-2">
                           <button 
                             onClick={() => setCompleteModalTrip(trip.id)}
-                            className="flex-1 py-2 bg-sage hover:bg-sage/95 text-slate-900 text-xs font-bold rounded-3xl transition-colors cursor-pointer text-center"
+                            className={cn("flex-1 py-2 text-xs font-bold rounded-3xl transition-colors cursor-pointer text-center", state.workspacePreferences.darkMode ? "bg-emerald-600/25 hover:bg-emerald-600/35 text-emerald-400" : "bg-emerald-600 hover:bg-emerald-700 text-white")}
                           >
                             Mark Completed
                           </button>
