@@ -49,41 +49,53 @@ export function Trips() {
 
       
       {/* Active Pipeline Flow Visualizer */}
-      <div className="soft-card p-6 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
+      {(() => {
+        const draftCount = state.trips.filter(t => t.status === 'Draft').length;
+        const dispatchedCount = state.trips.filter(t => t.status === 'Dispatched').length;
+        const completedCount = state.trips.filter(t => t.status === 'Completed').length;
         
-        <div className="flex-1 w-full flex items-center justify-between relative">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-slate-200/60 z-0"></div>
-          
-          <div className="relative z-10 flex flex-col items-center gap-2 group cursor-pointer">
-            <div className="w-10 h-10 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center shadow-sm group-hover:border-black transition-colors">
-               <span className="w-3 h-3 bg-slate-300 rounded-full group-hover:bg-black transition-colors"></span>
+        const isDraftActive = draftCount > 0;
+        const isDispatchedActive = dispatchedCount > 0;
+        const isCompletedActive = completedCount > 0;
+
+        return (
+          <div className="soft-card p-6 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
+            
+            <div className="flex-1 w-full flex items-center justify-between relative">
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-slate-200/60 z-0"></div>
+              
+              <div className="relative z-10 flex flex-col items-center gap-2 group cursor-pointer">
+                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm", isDraftActive ? "bg-black border-2 border-black" : "bg-white border-2 border-slate-200")}>
+                   <span className={cn("w-3 h-3 rounded-full transition-colors", isDraftActive ? "bg-white" : "bg-slate-300")}></span>
+                </div>
+                <span className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border transition-colors", isDraftActive ? "text-slate-900 bg-white border-slate-200 shadow-sm" : "text-slate-500 bg-[#f8fafc] border-slate-100")}>Draft ({draftCount})</span>
+              </div>
+              
+              <div className="relative z-10 flex flex-col items-center gap-2 group cursor-pointer">
+                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm", isDispatchedActive ? "bg-black border-2 border-black" : "bg-white border-2 border-slate-200")}>
+                   <Gauge className={cn("w-4 h-4 transition-colors", isDispatchedActive ? "text-white" : "text-slate-400")} />
+                </div>
+                <span className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border transition-colors", isDispatchedActive ? "text-slate-900 bg-white border-slate-200 shadow-sm" : "text-slate-500 bg-[#f8fafc] border-slate-100")}>Dispatching ({dispatchedCount})</span>
+              </div>
+              
+              <div className="relative z-10 flex flex-col items-center gap-2 group cursor-pointer">
+                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm", isDispatchedActive ? "bg-black border-2 border-black" : "bg-white border-2 border-slate-200")}>
+                   <MapPin className={cn("w-4 h-4 transition-colors", isDispatchedActive ? "text-white" : "text-slate-400")} />
+                </div>
+                <span className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border transition-colors", isDispatchedActive ? "text-slate-900 bg-white border-slate-200 shadow-sm" : "text-slate-500 bg-[#f8fafc] border-slate-100")}>In Transit ({dispatchedCount})</span>
+              </div>
+              
+              <div className="relative z-10 flex flex-col items-center gap-2 group cursor-pointer">
+                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm", isCompletedActive ? "bg-black border-2 border-black" : "bg-white border-2 border-slate-200")}>
+                   <CheckCircle className={cn("w-4 h-4 transition-colors", isCompletedActive ? "text-white" : "text-slate-400")} />
+                </div>
+                <span className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border transition-colors", isCompletedActive ? "text-slate-900 bg-white border-slate-200 shadow-sm" : "text-slate-500 bg-[#f8fafc] border-slate-100")}>Completed ({completedCount})</span>
+              </div>
             </div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-[#f8fafc] px-2 py-0.5 rounded-full border border-slate-100">Draft</span>
           </div>
-          
-          <div className="relative z-10 flex flex-col items-center gap-2 group cursor-pointer">
-            <div className="w-10 h-10 rounded-full bg-black border-2 border-black flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.2)]">
-               <Gauge className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-[10px] font-bold text-slate-900 uppercase tracking-wider bg-white px-2 py-0.5 rounded-full border border-slate-200 shadow-sm">Dispatching</span>
-          </div>
-          
-          <div className="relative z-10 flex flex-col items-center gap-2 group cursor-pointer">
-            <div className="w-10 h-10 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center shadow-sm group-hover:border-black transition-colors">
-               <MapPin className="w-4 h-4 text-slate-400 group-hover:text-black transition-colors" />
-            </div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-[#f8fafc] px-2 py-0.5 rounded-full border border-slate-100">In Transit</span>
-          </div>
-          
-          <div className="relative z-10 flex flex-col items-center gap-2 group cursor-pointer">
-            <div className="w-10 h-10 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center shadow-sm group-hover:border-black transition-colors">
-               <CheckCircle className="w-4 h-4 text-slate-400 group-hover:text-black transition-colors" />
-            </div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-[#f8fafc] px-2 py-0.5 rounded-full border border-slate-100">Completed</span>
-          </div>
-        </div>
-      </div>
+        );
+      })()}
 
       {/* Kanban Board Container */}
       <div className="flex-1 flex gap-6 overflow-x-auto pb-4 items-stretch min-h-[450px]">
