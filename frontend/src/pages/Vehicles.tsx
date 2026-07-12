@@ -379,16 +379,16 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
       return 0;
     });
 
-  return <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-sm" onClick={onClose}><aside onClick={event => event.stopPropagation()} className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-2xl sm:p-8"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Fleet asset</p><h2 className="mt-1 font-display text-2xl font-bold text-slate-900">{vehicle.registrationNumber}</h2><p className="text-sm text-slate-500">{vehicle.name}</p></div><button onClick={onClose} className="rounded-full p-2 text-slate-500 hover:bg-slate-100"><X className="w-5 h-5" /></button></div><div className="mt-5"><Badge status={vehicle.status} /></div>
+  return <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-sm" onClick={onClose}><aside onClick={event => event.stopPropagation()} className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto bg-white dark:bg-slate-900 p-6 shadow-2xl sm:p-8 border-l dark:border-slate-800"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">Fleet asset</p><h2 className="mt-1 font-display text-2xl font-bold text-slate-900 dark:text-slate-100">{vehicle.registrationNumber}</h2><p className="text-sm text-slate-500 dark:text-slate-400">{vehicle.name}</p></div><button onClick={onClose} className="rounded-full p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"><X className="w-5 h-5" /></button></div><div className="mt-5"><Badge status={vehicle.status} /></div>
   
-  <div className="mt-8 flex gap-4 border-b border-slate-100">
-    <button onClick={() => setActiveTab('overview')} className={cn("pb-2 text-sm font-bold border-b-2 transition-colors", activeTab === 'overview' ? 'border-accent text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600')}>Overview</button>
-    <button onClick={() => setActiveTab('documents')} className={cn("pb-2 text-sm font-bold border-b-2 transition-colors", activeTab === 'documents' ? 'border-accent text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600')}>Document Management</button>
+  <div className="mt-8 flex gap-4 border-b border-slate-100 dark:border-slate-800">
+    <button onClick={() => setActiveTab('overview')} className={cn("pb-2 text-sm font-bold border-b-2 transition-colors", activeTab === 'overview' ? 'border-accent text-slate-900 dark:text-white' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}>Overview</button>
+    <button onClick={() => setActiveTab('documents')} className={cn("pb-2 text-sm font-bold border-b-2 transition-colors", activeTab === 'documents' ? 'border-accent text-slate-900' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}>Document Management</button>
   </div>
 
   {activeTab === 'overview' ? (
     <>
-      <div className="mt-7 grid grid-cols-2 gap-3"><Metric label="Capacity" value={`${vehicle.maxLoadCapacity.toLocaleString()} kg`} /><Metric label="Odometer" value={`${vehicle.odometer.toLocaleString()} km`} /><Metric label="Fuel cost" value={`${fuelCost.toLocaleString()}`} /><Metric label="Maintenance" value={`${maintenanceCost.toLocaleString()}`} /></div><section className="mt-8"><h3 className="font-display font-bold text-slate-900">Operational timeline</h3><div className="mt-4 space-y-3">{relatedTrips.length ? relatedTrips.map(trip => <div key={trip.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><div className="flex justify-between gap-3"><p className="text-sm font-bold text-slate-900">{trip.source} → {trip.destination}</p><Badge status={trip.status} /></div><p className="mt-1 text-xs text-slate-500">{trip.plannedDistance} km · {trip.cargoWeight} kg cargo</p></div>) : <p className="rounded-2xl border border-dashed border-slate-200 p-5 text-sm text-slate-500">No trips have been recorded for this vehicle yet.</p>}</div></section>
+      <div className="mt-7 grid grid-cols-2 gap-3"><Metric label="Capacity" value={`${vehicle.maxLoadCapacity.toLocaleString()} kg`} /><Metric label="Odometer" value={`${vehicle.odometer.toLocaleString()} km`} /><Metric label="Fuel cost" value={`${fuelCost.toLocaleString()}`} /><Metric label="Maintenance" value={`${maintenanceCost.toLocaleString()}`} /></div><section className="mt-8"><h3 className="font-display font-bold text-slate-900 dark:text-slate-100">Operational timeline</h3><div className="mt-4 space-y-3">{relatedTrips.length ? relatedTrips.map(trip => <div key={trip.id} className="rounded-2xl border border-slate-100 dark:border-slate-850 bg-slate-50 dark:bg-slate-800/40 p-4"><div className="flex justify-between gap-3"><p className="text-sm font-bold text-slate-900 dark:text-slate-100">{trip.source} → {trip.destination}</p><Badge status={trip.status} /></div><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{trip.plannedDistance} km · {trip.cargoWeight} kg cargo</p></div>) : <p className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-5 text-sm text-slate-500 dark:text-slate-400">No trips have been recorded for this vehicle yet.</p>}</div></section>
     </>
   ) : (
     <section className="mt-8 space-y-4">
@@ -401,14 +401,14 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
             placeholder="Search documents..." 
             value={docSearch}
             onChange={e => setDocSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent bg-white text-slate-900 font-medium text-xs dark:bg-slate-900 dark:border-slate-800"
+            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent bg-white text-slate-900 font-medium text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white"
           />
         </div>
         <div className="flex gap-2">
           <select 
             value={docFilter} 
             onChange={e => setDocFilter(e.target.value)}
-            className="flex-1 px-3 py-1.5 text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800"
+            className="flex-1 px-3 py-1.5 text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300"
           >
             <option value="All">All Statuses</option>
             <option value="Active">Active</option>
@@ -417,7 +417,7 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
           <select 
             value={docSort} 
             onChange={e => setDocSort(e.target.value)}
-            className="flex-1 px-3 py-1.5 text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800"
+            className="flex-1 px-3 py-1.5 text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300"
           >
             <option value="name">Sort: Name</option>
             <option value="status">Sort: Status</option>
@@ -427,10 +427,10 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
 
       <div className="space-y-3">
         {filteredDocs.map(doc => (
-          <div key={doc.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 flex items-center justify-between group dark:bg-slate-900 dark:border-slate-800">
+          <div key={doc.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 flex items-center justify-between group dark:bg-slate-800/40 dark:border-slate-800">
             <div>
-              <p className="text-sm font-bold text-slate-900">{doc.name}</p>
-              <p className="text-xs text-slate-500 mt-1">{doc.uploadedAt}</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{doc.name}</p>
+              <p className="text-xs text-slate-500 mt-1 dark:text-slate-400">{doc.uploadedAt}</p>
             </div>
             <div className="flex items-center gap-3">
               <Badge status={doc.status === 'Active' ? 'Available' : 'In Shop'} />
@@ -444,21 +444,21 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
           </div>
         ))}
         {filteredDocs.length === 0 && (
-          <p className="text-center py-6 text-xs text-slate-400 font-semibold">No matching documents found.</p>
+          <p className="text-center py-6 text-xs text-slate-400 dark:text-slate-500 font-semibold">No matching documents found.</p>
         )}
       </div>
       
       {isAddingDoc ? (
-        <form onSubmit={handleAddDocument} className="border border-slate-100 bg-slate-50 rounded-2xl p-4 space-y-3">
+        <form onSubmit={handleAddDocument} className="border border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-850/30 rounded-2xl p-4 space-y-3">
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Document Name</label>
+            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Document Name</label>
             <input 
               type="text" 
               required
               placeholder="e.g. Emission Permit" 
               value={newDocName}
               onChange={e => setNewDocName(e.target.value)}
-              className="w-full px-3.5 py-2 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent bg-white text-slate-900 font-medium text-xs"
+              className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-800 rounded-full focus:outline-none focus:ring-2 focus:ring-accent bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium text-xs"
             />
           </div>
           <div className="flex justify-end gap-2 pt-1">
@@ -467,7 +467,7 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
           </div>
         </form>
       ) : (
-        <button onClick={() => setIsAddingDoc(true)} className="w-full mt-4 py-3 border-2 border-dashed border-slate-200 rounded-xl text-sm font-bold text-slate-500 hover:border-accent hover:text-accent transition-colors cursor-pointer">
+        <button onClick={() => setIsAddingDoc(true)} className="w-full mt-4 py-3 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:border-accent hover:text-accent transition-colors cursor-pointer">
           + Upload New Document
         </button>
       )}
@@ -476,7 +476,7 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
   </aside></div>;
 }
 
-function Metric({ label, value }: { label: string; value: string }) { return <div className="rounded-2xl bg-slate-50 p-4"><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</p><p className="mt-1 font-mono text-sm font-bold text-slate-900">{value}</p></div>; }
+function Metric({ label, value }: { label: string; value: string }) { return <div className="rounded-2xl bg-slate-50 dark:bg-slate-800 p-4"><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p><p className="mt-1 font-mono text-sm font-bold text-slate-900 dark:text-slate-100">{value}</p></div>; }
 
 function AddVehicleModal({ onClose }: { onClose: () => void }) {
   const { state, dispatch } = useStore();
