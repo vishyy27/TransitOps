@@ -326,21 +326,21 @@ function EditVehicleModal({ vehicle, onClose }: { vehicle: Vehicle; onClose: () 
       </div>
     </div>
   );
-}
-
-function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () => void }) {
+}function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () => void }) {
   const { state } = useStore();
   const [activeTab, setActiveTab] = useState<'overview' | 'documents'>('overview');
-  const [documents, setDocuments] = useState<{ id: string; name: string; uploadedAt: string; status: 'Active' | 'Expiring' | 'Expired' }[]>([
-    { id: 'd1', name: 'Commercial Insurance Policy', uploadedAt: 'Uploaded 10 days ago', status: 'Active' },
-    { id: 'd2', name: 'State Vehicle Registration Certificate', uploadedAt: 'Uploaded 5 months ago', status: 'Active' },
-    { id: 'd3', name: 'Safety Inspection Certificate', uploadedAt: 'Expires in 15 days', status: 'Expiring' }
+  const [documents, setDocuments] = useState<{ id: string; name: string; uploadedAt: string; status: 'Active' | 'Expiring' | 'Expired'; fileName: string }[]>([
+    { id: 'd1', name: 'Commercial Insurance Policy', uploadedAt: 'Uploaded 10 days ago', status: 'Active', fileName: 'commercial_insurance_policy_2026.pdf' },
+    { id: 'd2', name: 'State Vehicle Registration Certificate', uploadedAt: 'Uploaded 5 months ago', status: 'Active', fileName: 'state_vehicle_registration.pdf' },
+    { id: 'd3', name: 'Safety Inspection Certificate', uploadedAt: 'Expires in 15 days', status: 'Expiring', fileName: 'safety_inspection_cert.pdf' }
   ]);
   const [isAddingDoc, setIsAddingDoc] = useState(false);
   const [newDocName, setNewDocName] = useState('');
+  const [uploadedFileName, setUploadedFileName] = useState('');
   const [docSearch, setDocSearch] = useState('');
   const [docFilter, setDocFilter] = useState('All');
   const [docSort, setDocSort] = useState('name');
+  const [previewingDoc, setPreviewingDoc] = useState<{ name: string; fileName: string; status: string } | null>(null);
 
   const vehicle = state.vehicles.find(item => item.id === vehicleId);
   if (!vehicle) return null;
@@ -351,22 +351,25 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
   const handleAddDocument = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDocName.trim()) return;
+    const finalFileName = uploadedFileName || `${newDocName.toLowerCase().replace(/\s+/g, '_')}_document.pdf`;
     setDocuments([
       ...documents,
       {
         id: Math.random().toString(36).substr(2, 9),
         name: newDocName.trim(),
         uploadedAt: 'Uploaded just now',
-        status: 'Active'
+        status: 'Active',
+        fileName: finalFileName
       }
     ]);
     setNewDocName('');
+    setUploadedFileName('');
     setIsAddingDoc(false);
   };
 
   const filteredDocs = documents
     .filter(doc => {
-      const matchesSearch = doc.name.toLowerCase().includes(docSearch.toLowerCase());
+      const matchesSearch = doc.name.toLowerCase().includes(docSearch.toLowerCase()) || doc.fileName.toLowerCase().includes(docSearch.toLowerCase());
       const matchesStatus = docFilter === 'All' || doc.status === docFilter;
       return matchesSearch && matchesStatus;
     })
@@ -379,16 +382,18 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
       return 0;
     });
 
-  return <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-sm" onClick={onClose}><aside onClick={event => event.stopPropagation()} className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto bg-white dark:bg-slate-900 p-6 shadow-2xl sm:p-8 border-l dark:border-slate-800"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">Fleet asset</p><h2 className="mt-1 font-display text-2xl font-bold text-slate-900 dark:text-slate-100">{vehicle.registrationNumber}</h2><p className="text-sm text-slate-500 dark:text-slate-400">{vehicle.name}</p></div><button onClick={onClose} className="rounded-full p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"><X className="w-5 h-5" /></button></div><div className="mt-5"><Badge status={vehicle.status} /></div>
+  const isDark = state.workspacePreferences.darkMode;
+
+  return <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-sm" onClick={onClose}><aside onClick={event => event.stopPropagation()} className={cn("absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto p-6 shadow-2xl sm:p-8 border-l transition-colors duration-200", isDark ? "bg-slate-900 text-slate-100 border-slate-800" : "bg-white text-slate-900 border-slate-100")}><div className="flex items-start justify-between"><div><p className={cn("text-xs font-bold uppercase tracking-[0.16em]", isDark ? "text-slate-500" : "text-slate-400")}>Fleet asset</p><h2 className={cn("mt-1 font-display text-2xl font-bold", isDark ? "text-slate-100" : "text-slate-905")}>{vehicle.registrationNumber}</h2><p className={cn("text-sm", isDark ? "text-slate-400" : "text-slate-550")}>{vehicle.name}</p></div><button onClick={onClose} className={cn("rounded-full p-2 transition-colors cursor-pointer", isDark ? "text-slate-400 hover:bg-slate-800" : "text-slate-500 hover:bg-slate-100")}><X className="w-5 h-5" /></button></div><div className="mt-5"><Badge status={vehicle.status} /></div>
   
-  <div className="mt-8 flex gap-4 border-b border-slate-100 dark:border-slate-800">
+  <div className={cn("mt-8 flex gap-4 border-b", isDark ? "border-slate-800" : "border-slate-100")}>
     <button onClick={() => setActiveTab('overview')} className={cn("pb-2 text-sm font-bold border-b-2 transition-colors", activeTab === 'overview' ? 'border-accent text-slate-900 dark:text-white' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}>Overview</button>
     <button onClick={() => setActiveTab('documents')} className={cn("pb-2 text-sm font-bold border-b-2 transition-colors", activeTab === 'documents' ? 'border-accent text-slate-900' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}>Document Management</button>
   </div>
 
   {activeTab === 'overview' ? (
     <>
-      <div className="mt-7 grid grid-cols-2 gap-3"><Metric label="Capacity" value={`${vehicle.maxLoadCapacity.toLocaleString()} kg`} /><Metric label="Odometer" value={`${vehicle.odometer.toLocaleString()} km`} /><Metric label="Fuel cost" value={`${fuelCost.toLocaleString()}`} /><Metric label="Maintenance" value={`${maintenanceCost.toLocaleString()}`} /></div><section className="mt-8"><h3 className="font-display font-bold text-slate-900 dark:text-slate-100">Operational timeline</h3><div className="mt-4 space-y-3">{relatedTrips.length ? relatedTrips.map(trip => <div key={trip.id} className="rounded-2xl border border-slate-100 dark:border-slate-850 bg-slate-50 dark:bg-slate-800/40 p-4"><div className="flex justify-between gap-3"><p className="text-sm font-bold text-slate-900 dark:text-slate-100">{trip.source} → {trip.destination}</p><Badge status={trip.status} /></div><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{trip.plannedDistance} km · {trip.cargoWeight} kg cargo</p></div>) : <p className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-5 text-sm text-slate-500 dark:text-slate-400">No trips have been recorded for this vehicle yet.</p>}</div></section>
+      <div className="mt-7 grid grid-cols-2 gap-3"><Metric label="Capacity" value={`${vehicle.maxLoadCapacity.toLocaleString()} kg`} isDark={isDark} /><Metric label="Odometer" value={`${vehicle.odometer.toLocaleString()} km`} isDark={isDark} /><Metric label="Fuel cost" value={`${fuelCost.toLocaleString()}`} isDark={isDark} /><Metric label="Maintenance" value={`${maintenanceCost.toLocaleString()}`} isDark={isDark} /></div><section className="mt-8"><h3 className={cn("font-display font-bold", isDark ? "text-slate-100" : "text-slate-900")}>Operational timeline</h3><div className="mt-4 space-y-3">{relatedTrips.length ? relatedTrips.map(trip => <div key={trip.id} className={cn("rounded-2xl border p-4 transition-colors", isDark ? "border-slate-800 bg-slate-800/40" : "border-slate-100 bg-slate-50")}><div className="flex justify-between gap-3"><p className={cn("text-sm font-bold", isDark ? "text-slate-100" : "text-slate-900")}>{trip.source} → {trip.destination}</p><Badge status={trip.status} /></div><p className={cn("mt-1 text-xs", isDark ? "text-slate-400" : "text-slate-550")}>{trip.plannedDistance} km · {trip.cargoWeight} kg cargo</p></div>) : <p className={cn("rounded-2xl border border-dashed p-5 text-sm transition-colors", isDark ? "border-slate-800 text-slate-400" : "border-slate-200 text-slate-500")}>No trips have been recorded for this vehicle yet.</p>}</div></section>
     </>
   ) : (
     <section className="mt-8 space-y-4">
@@ -401,14 +406,14 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
             placeholder="Search documents..." 
             value={docSearch}
             onChange={e => setDocSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent bg-white text-slate-900 font-medium text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white"
+            className={cn("w-full pl-9 pr-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-accent text-xs transition-colors", isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900")}
           />
         </div>
         <div className="flex gap-2">
           <select 
             value={docFilter} 
             onChange={e => setDocFilter(e.target.value)}
-            className="flex-1 px-3 py-1.5 text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300"
+            className={cn("flex-1 px-3 py-1.5 text-[11px] font-semibold rounded-full focus:outline-none focus:ring-2 focus:ring-accent transition-colors", isDark ? "bg-slate-950 border border-slate-800 text-slate-300" : "bg-white border border-slate-200 text-slate-600")}
           >
             <option value="All">All Statuses</option>
             <option value="Active">Active</option>
@@ -417,7 +422,7 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
           <select 
             value={docSort} 
             onChange={e => setDocSort(e.target.value)}
-            className="flex-1 px-3 py-1.5 text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300"
+            className={cn("flex-1 px-3 py-1.5 text-[11px] font-semibold rounded-full focus:outline-none focus:ring-2 focus:ring-accent transition-colors", isDark ? "bg-slate-950 border border-slate-800 text-slate-300" : "bg-white border border-slate-200 text-slate-600")}
           >
             <option value="name">Sort: Name</option>
             <option value="status">Sort: Status</option>
@@ -427,13 +432,19 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
 
       <div className="space-y-3">
         {filteredDocs.map(doc => (
-          <div key={doc.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 flex items-center justify-between group dark:bg-slate-800/40 dark:border-slate-800">
-            <div>
-              <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{doc.name}</p>
-              <p className="text-xs text-slate-500 mt-1 dark:text-slate-400">{doc.uploadedAt}</p>
+          <div key={doc.id} className={cn("rounded-2xl border p-4 flex items-center justify-between group transition-colors", isDark ? "bg-slate-800/40 border-slate-800" : "bg-slate-50 border-slate-100")}>
+            <div className="flex-1 min-w-0 pr-4">
+              <p className={cn("text-sm font-bold truncate", isDark ? "text-slate-100" : "text-slate-900")}>{doc.name}</p>
+              <p className={cn("text-[11px] truncate font-mono mt-0.5", isDark ? "text-slate-500" : "text-slate-400")}>{doc.fileName}</p>
+              <p className={cn("text-[10px] mt-1", isDark ? "text-slate-400" : "text-slate-505")}>{doc.uploadedAt}</p>
             </div>
-            <div className="flex items-center gap-3">
-              <Badge status={doc.status === 'Active' ? 'Available' : 'In Shop'} />
+            <div className="flex items-center gap-2.5 shrink-0">
+              <button 
+                onClick={() => setPreviewingDoc(doc)}
+                className="text-accent hover:text-accent/85 text-xs font-bold uppercase tracking-wider cursor-pointer"
+              >
+                View
+              </button>
               <button 
                 onClick={() => setDocuments(docs => docs.filter(d => d.id !== doc.id))}
                 className="text-rose-500 hover:text-rose-700 text-xs font-bold uppercase tracking-wider cursor-pointer"
@@ -444,39 +455,83 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
           </div>
         ))}
         {filteredDocs.length === 0 && (
-          <p className="text-center py-6 text-xs text-slate-400 dark:text-slate-500 font-semibold">No matching documents found.</p>
+          <p className={cn("text-center py-6 text-xs font-semibold transition-colors", isDark ? "text-slate-500" : "text-slate-400")}>No matching documents found.</p>
         )}
       </div>
       
       {isAddingDoc ? (
-        <form onSubmit={handleAddDocument} className="border border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-850/30 rounded-2xl p-4 space-y-3">
+        <form onSubmit={handleAddDocument} className={cn("border rounded-2xl p-4 space-y-3 transition-colors", isDark ? "border-slate-800 bg-slate-850/30" : "border-slate-100 bg-slate-50")}>
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Document Name</label>
+            <label className={cn("block text-[10px] font-bold uppercase tracking-wider mb-1", isDark ? "text-slate-400" : "text-slate-500")}>Document Name</label>
             <input 
               type="text" 
               required
               placeholder="e.g. Emission Permit" 
               value={newDocName}
               onChange={e => setNewDocName(e.target.value)}
-              className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-800 rounded-full focus:outline-none focus:ring-2 focus:ring-accent bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium text-xs"
+              className={cn("w-full px-3.5 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-accent text-xs transition-colors", isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900")}
             />
           </div>
+
+          <div>
+            <label className={cn("block text-[10px] font-bold uppercase tracking-wider mb-1", isDark ? "text-slate-400" : "text-slate-500")}>Attach File</label>
+            <input 
+              type="file" 
+              onChange={e => {
+                const file = e.target.files?.[0];
+                if (file) setUploadedFileName(file.name);
+              }}
+              className="hidden"
+              id="file-upload-input"
+            />
+            <label 
+              htmlFor="file-upload-input" 
+              className={cn("flex items-center justify-center gap-2 w-full py-2.5 border-2 border-dashed rounded-full text-xs font-semibold cursor-pointer transition-colors", isDark ? "border-slate-800 text-slate-400 bg-slate-950 hover:text-white" : "border-slate-200 text-slate-500 bg-white hover:text-slate-900")}
+            >
+              {uploadedFileName ? `✓ ${uploadedFileName}` : "Choose PDF / Image File"}
+            </label>
+          </div>
+
           <div className="flex justify-end gap-2 pt-1">
-            <button type="button" onClick={() => setIsAddingDoc(false)} className="px-3 py-1.5 text-[10px] font-bold uppercase text-slate-500 hover:text-slate-900 border border-slate-200 rounded-full cursor-pointer">Cancel</button>
+            <button type="button" onClick={() => { setIsAddingDoc(false); setUploadedFileName(''); }} className={cn("px-3 py-1.5 text-[10px] font-bold uppercase border rounded-full cursor-pointer transition-colors", isDark ? "text-slate-400 border-slate-800 hover:text-slate-250" : "text-slate-500 border-slate-200 hover:text-slate-900")}>Cancel</button>
             <button type="submit" className="px-3 py-1.5 text-[10px] font-bold uppercase text-white bg-accent rounded-full cursor-pointer">Add Document</button>
           </div>
         </form>
       ) : (
-        <button onClick={() => setIsAddingDoc(true)} className="w-full mt-4 py-3 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:border-accent hover:text-accent transition-colors cursor-pointer">
+        <button onClick={() => setIsAddingDoc(true)} className={cn("w-full mt-4 py-3 border-2 border-dashed rounded-xl text-sm font-bold transition-colors cursor-pointer", isDark ? "border-slate-800 text-slate-400 hover:border-accent hover:text-accent" : "border-slate-200 text-slate-500 hover:border-accent hover:text-accent")}>
           + Upload New Document
         </button>
       )}
     </section>
   )}
-  </aside></div>;
-}
+  </aside>
 
-function Metric({ label, value }: { label: string; value: string }) { return <div className="rounded-2xl bg-slate-50 dark:bg-slate-800 p-4"><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p><p className="mt-1 font-mono text-sm font-bold text-slate-900 dark:text-slate-100">{value}</p></div>; }
+  {/* Document Preview Modal */}
+  {previewingDoc && (
+    <div className="fixed inset-0 bg-slate-955/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setPreviewingDoc(null)}>
+      <div className={cn("w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl p-6 relative border transition-colors", isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-100")} onClick={e => e.stopPropagation()}>
+        <div className={cn("flex justify-between items-center pb-4 border-b", isDark ? "border-slate-800" : "border-slate-100")}>
+          <h4 className={cn("text-sm font-bold font-display", isDark ? "text-slate-100" : "text-slate-900")}>{previewingDoc.name}</h4>
+          <button onClick={() => setPreviewingDoc(null)} className={cn("p-1.5 rounded-full transition-colors cursor-pointer", isDark ? "hover:bg-slate-800 text-slate-400" : "hover:bg-slate-100 text-slate-500")}><X className="w-4 h-4" /></button>
+        </div>
+        <div className={cn("my-6 p-10 rounded-2xl border border-dashed flex flex-col items-center justify-center text-center transition-colors", isDark ? "bg-slate-950 border-slate-800" : "bg-slate-50 border-slate-200")}>
+          <div className="w-14 h-14 bg-accent/10 text-accent rounded-full flex items-center justify-center mb-3">
+            <Shield className="w-7 h-7" />
+          </div>
+          <p className={cn("text-[10px] font-bold uppercase tracking-wider", isDark ? "text-slate-500" : "text-slate-400")}>Secure Vault Document Preview</p>
+          <p className={cn("text-sm font-semibold mt-1 font-mono", isDark ? "text-white" : "text-slate-900")}>{previewingDoc.fileName}</p>
+          <p className="text-[10px] text-slate-400 mt-2">TransitOps Cryptographic Registry Verification Successful</p>
+        </div>
+        <div className="flex justify-end gap-2">
+          <button onClick={() => setPreviewingDoc(null)} className={cn("px-4 py-2 border text-xs font-bold uppercase rounded-full cursor-pointer transition-colors", isDark ? "border-slate-800 text-slate-400 hover:text-white" : "border-slate-200 text-slate-500 hover:text-slate-900")}>Close</button>
+          <a href="#" onClick={(e) => { e.preventDefault(); import('react-hot-toast').then(({ toast: hotToast }) => hotToast.success(`Downloading "${previewingDoc.fileName}"...`)); }} className="px-5 py-2 bg-accent text-white text-xs font-bold uppercase rounded-full cursor-pointer shadow-md hover:bg-accent/90">Download File</a>
+        </div>
+      </div>
+    </div>
+  )}
+  </div>;
+}
+function Metric({ label, value, isDark }: { label: string; value: string; isDark: boolean }) { return <div className={cn("rounded-2xl p-4 transition-colors", isDark ? "bg-slate-800" : "bg-slate-50")}><p className={cn("text-[10px] font-bold uppercase tracking-wider", isDark ? "text-slate-500" : "text-slate-400")}>{label}</p><p className={cn("mt-1 font-mono text-sm font-bold", isDark ? "text-slate-100" : "text-slate-900")}>{value}</p></div>; }
 
 function AddVehicleModal({ onClose }: { onClose: () => void }) {
   const { state, dispatch } = useStore();
