@@ -1,0 +1,262 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #111827;
+  --color-accent: #000000;
+  
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+body {
+  @apply bg-[#e5e9f0] text-slate-900 font-sans min-h-screen relative overflow-x-hidden;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-display;
+}
+
+.soft-card {
+  @apply bg-white/70 backdrop-blur-[12px] rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/40;
+}
+.soft-inner {
+  @apply bg-white/50 backdrop-blur-[12px] rounded-[24px] border border-white/40 p-6;
+}
+.soft-input {
+  @apply bg-white/50 backdrop-blur-[12px] shadow-inner border border-white/40 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-black focus:bg-white/80 rounded-full transition-all;
+}
+.soft-button {
+  @apply bg-black hover:bg-slate-800 text-white shadow-md shadow-black/10 transition-all font-medium rounded-full;
+}
+.soft-button-secondary {
+  @apply bg-white hover:bg-[#f4f6f9] border border-slate-200 text-slate-900 shadow-sm transition-all font-medium rounded-full;
+}
+.soft-table-header {
+  @apply bg-[#f4f6f9] text-slate-500 font-medium text-sm;
+}
+.soft-table-row {
+  @apply border-b border-slate-100 hover:bg-[#f8fafc] transition-colors;
+}
+
+/* Recharts */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: rgba(0, 0, 0, 0.05);
+}
+.recharts-text {
+  fill: #64748b;
+}
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border-radius: 16px !important;
+  color: #0f172a !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+}
+
+/* Premium low-light command view (Dark Mode styling system) */
+.theme-dark { 
+  color: #f8fafc; 
+}
+.theme-dark .bg-slate-950 {
+  background-color: #030712 !important;
+}
+.theme-dark .soft-card,
+.theme-dark .soft-inner,
+.theme-dark aside,
+.theme-dark main > div > .bg-white,
+.theme-dark header > div > button { 
+  background-color: rgba(17, 24, 39, 0.8) !important; 
+  backdrop-filter: blur(16px) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important; 
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Override Tailwind white-opacity backgrounds to dark-opacity in dark mode */
+.theme-dark .bg-white\/10 { background-color: rgba(255, 255, 255, 0.08) !important; }
+.theme-dark .bg-white\/40,
+.theme-dark .bg-white\/50,
+.theme-dark .bg-white\/60,
+.theme-dark .bg-white\/65,
+.theme-dark .bg-white\/70,
+.theme-dark .bg-white\/80 { 
+  background-color: rgba(17, 24, 39, 0.6) !important; 
+}
+
+/* High contrast text elements for low-light environment */
+.theme-dark .text-slate-900 { color: #ffffff !important; }
+.theme-dark .text-slate-800 { color: #f8fafc !important; }
+.theme-dark .text-slate-700 { color: #f1f5f9 !important; }
+.theme-dark .text-slate-600 { color: #cbd5e1 !important; }
+.theme-dark .text-slate-500 { color: #a1a1aa !important; }
+.theme-dark .text-slate-400 { color: #94a3b8 !important; }
+
+.theme-dark .bg-white, 
+.theme-dark .bg-slate-50, 
+.theme-dark .soft-table-header,
+.theme-dark .bg-\[\#f4f6f9\] { 
+  background-color: rgba(31, 41, 55, 0.8) !important; 
+}
+.theme-dark tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+.theme-dark tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+.theme-dark .border-slate-100,
+.theme-dark .border-slate-200,
+.theme-dark .border-slate-200\/70,
+.theme-dark .border-slate-200\/60,
+.theme-dark .border-slate-200\/85,
+.theme-dark .border-white\/60,
+.theme-dark .border-white\/70,
+.theme-dark .border-white\/40,
+.theme-dark .border-white { 
+  border-color: rgba(255, 255, 255, 0.08) !important; 
+}
+.theme-dark input,
+.theme-dark select,
+.theme-dark textarea {
+  background-color: rgba(17, 24, 39, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+}
+.theme-dark input::placeholder {
+  color: #64748b !important;
+}
+.theme-dark .hover\:bg-white:hover,
+.theme-dark .hover\:bg-slate-50:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+/* Glow effect for active navigation tab in dark mode */
+.theme-dark aside nav .bg-slate-950 {
+  background-color: #6366f1 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.35) !important;
+}
+
+/* Kanban column header and container overrides */
+.theme-dark .flex-shrink-0 > .bg-white {
+  background-color: rgba(17, 24, 39, 0.9) !important;
+}
+.theme-dark .bg-transparent\/40,
+.theme-dark .bg-sage\/10,
+.theme-dark .bg-sage\/5,
+.theme-dark .bg-accent\/5 {
+  background-color: rgba(17, 24, 39, 0.4) !important;
+}
+
+/* Empty kanban column placeholder container override */
+.theme-dark .bg-slate-100 {
+  background-color: rgba(17, 24, 39, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #94a3b8 !important;
+}
+
+/* Dark mode overrides for custom action buttons */
+.theme-dark .bg-sage {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+}
+.theme-dark .bg-ink {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+  color: #818cf8 !important;
+}
+
+/* Print Styles for Premium PDF Generation */
+@media print {
+  aside, header, button, select, .relative.w-full.sm\:w-80, .flex-wrap, .soft-card:first-of-type, .bg-cream-light\/60, .flex.items-center.gap-2.bg-cream-light {
+    display: none !important;
+  }
+  
+  body, html, #root {
+    background: #FFF !important;
+    color: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  .grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+  }
+
+  .grid > div {
+    page-break-inside: avoid !important;
+    width: 100% !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: none !important;
+    background: #FFF !important;
+    padding: 1rem !important;
+  }
+
+  .soft-card {
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: none !important;
+    background: #FFF !important;
+  }
+
+  /* Ensure text is dark and legible in print */
+  .text-slate-900, .text-ink {
+    color: #000 !important;
+  }
+  .text-slate-500, .text-rust {
+    color: #334155 !important;
+  }
+
+  body.printing-invoice #root {
+    display: none !important;
+  }
+  body.printing-invoice #invoice-print-section {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    background: white !important;
+    color: black !important;
+  }
+}
+
+#invoice-print-section {
+  display: none;
+}
+
+@media print {
+  /* Ensure the main container drops its bounds to allow page breaks */
+  .flex-1 {
+    overflow: visible !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}
