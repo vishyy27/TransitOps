@@ -338,6 +338,9 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
   ]);
   const [isAddingDoc, setIsAddingDoc] = useState(false);
   const [newDocName, setNewDocName] = useState('');
+  const [docSearch, setDocSearch] = useState('');
+  const [docFilter, setDocFilter] = useState('All');
+  const [docSort, setDocSort] = useState('name');
 
   const vehicle = state.vehicles.find(item => item.id === vehicleId);
   if (!vehicle) return null;
@@ -361,6 +364,21 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
     setIsAddingDoc(false);
   };
 
+  const filteredDocs = documents
+    .filter(doc => {
+      const matchesSearch = doc.name.toLowerCase().includes(docSearch.toLowerCase());
+      const matchesStatus = docFilter === 'All' || doc.status === docFilter;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      if (docSort === 'name') {
+        return a.name.localeCompare(b.name);
+      } else if (docSort === 'status') {
+        return a.status.localeCompare(b.status);
+      }
+      return 0;
+    });
+
   return <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-sm" onClick={onClose}><aside onClick={event => event.stopPropagation()} className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-2xl sm:p-8"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Fleet asset</p><h2 className="mt-1 font-display text-2xl font-bold text-slate-900">{vehicle.registrationNumber}</h2><p className="text-sm text-slate-500">{vehicle.name}</p></div><button onClick={onClose} className="rounded-full p-2 text-slate-500 hover:bg-slate-100"><X className="w-5 h-5" /></button></div><div className="mt-5"><Badge status={vehicle.status} /></div>
   
   <div className="mt-8 flex gap-4 border-b border-slate-100">
@@ -374,23 +392,61 @@ function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () 
     </>
   ) : (
     <section className="mt-8 space-y-4">
-      {documents.map(doc => (
-        <div key={doc.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 flex items-center justify-between group">
-          <div>
-            <p className="text-sm font-bold text-slate-900">{doc.name}</p>
-            <p className="text-xs text-slate-500 mt-1">{doc.uploadedAt}</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge status={doc.status === 'Active' ? 'Available' : 'In Shop'} />
-            <button 
-              onClick={() => setDocuments(docs => docs.filter(d => d.id !== doc.id))}
-              className="text-rose-500 hover:text-rose-700 text-xs font-bold uppercase tracking-wider cursor-pointer"
-            >
-              Remove
-            </button>
-          </div>
+      {/* Document Search and Filters */}
+      <div className="space-y-2.5">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input 
+            type="text" 
+            placeholder="Search documents..." 
+            value={docSearch}
+            onChange={e => setDocSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent bg-white text-slate-900 font-medium text-xs dark:bg-slate-900 dark:border-slate-800"
+          />
         </div>
-      ))}
+        <div className="flex gap-2">
+          <select 
+            value={docFilter} 
+            onChange={e => setDocFilter(e.target.value)}
+            className="flex-1 px-3 py-1.5 text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800"
+          >
+            <option value="All">All Statuses</option>
+            <option value="Active">Active</option>
+            <option value="Expiring">Expiring</option>
+          </select>
+          <select 
+            value={docSort} 
+            onChange={e => setDocSort(e.target.value)}
+            className="flex-1 px-3 py-1.5 text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800"
+          >
+            <option value="name">Sort: Name</option>
+            <option value="status">Sort: Status</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {filteredDocs.map(doc => (
+          <div key={doc.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 flex items-center justify-between group dark:bg-slate-900 dark:border-slate-800">
+            <div>
+              <p className="text-sm font-bold text-slate-900">{doc.name}</p>
+              <p className="text-xs text-slate-500 mt-1">{doc.uploadedAt}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Badge status={doc.status === 'Active' ? 'Available' : 'In Shop'} />
+              <button 
+                onClick={() => setDocuments(docs => docs.filter(d => d.id !== doc.id))}
+                className="text-rose-500 hover:text-rose-700 text-xs font-bold uppercase tracking-wider cursor-pointer"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        ))}
+        {filteredDocs.length === 0 && (
+          <p className="text-center py-6 text-xs text-slate-400 font-semibold">No matching documents found.</p>
+        )}
+      </div>
       
       {isAddingDoc ? (
         <form onSubmit={handleAddDocument} className="border border-slate-100 bg-slate-50 rounded-2xl p-4 space-y-3">
