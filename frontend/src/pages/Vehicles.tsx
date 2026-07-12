@@ -10,6 +10,7 @@ export function Vehicles() {
   const { state, dispatch } = useStore();
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
 
   const filteredVehicles = state.vehicles.filter(v => 
     v.registrationNumber.toLowerCase().includes(search.toLowerCase()) ||
@@ -80,6 +81,7 @@ export function Vehicles() {
                     <Badge status={vehicle.status} />
                   </td>
                   <td className="py-4 px-5 text-right">
+                    <button onClick={() => setSelectedVehicleId(vehicle.id)} className="mr-4 text-xs font-bold text-slate-500 hover:text-slate-950 uppercase tracking-wider">Details</button>
                     <button 
                       onClick={() => {
                         if (vehicle.status !== 'Retired') {
@@ -107,9 +109,22 @@ export function Vehicles() {
       {isModalOpen && (
         <AddVehicleModal onClose={() => setIsModalOpen(false)} />
       )}
+      {selectedVehicleId && <VehicleDrawer vehicleId={selectedVehicleId} onClose={() => setSelectedVehicleId(null)} />}
     </div>
   );
 }
+
+function VehicleDrawer({ vehicleId, onClose }: { vehicleId: string; onClose: () => void }) {
+  const { state } = useStore();
+  const vehicle = state.vehicles.find(item => item.id === vehicleId);
+  if (!vehicle) return null;
+  const relatedTrips = state.trips.filter(trip => trip.vehicleId === vehicleId);
+  const maintenanceCost = state.maintenanceRecords.filter(record => record.vehicleId === vehicleId).reduce((sum, record) => sum + record.cost, 0);
+  const fuelCost = state.fuelLogs.filter(log => log.vehicleId === vehicleId).reduce((sum, log) => sum + log.cost, 0);
+  return <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-sm" onClick={onClose}><aside onClick={event => event.stopPropagation()} className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-2xl sm:p-8"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Fleet asset</p><h2 className="mt-1 font-display text-2xl font-bold text-slate-900">{vehicle.registrationNumber}</h2><p className="text-sm text-slate-500">{vehicle.name}</p></div><button onClick={onClose} className="rounded-full p-2 text-slate-500 hover:bg-slate-100"><X className="w-5 h-5" /></button></div><div className="mt-5"><Badge status={vehicle.status} /></div><div className="mt-7 grid grid-cols-2 gap-3"><Metric label="Capacity" value={`${vehicle.maxLoadCapacity.toLocaleString()} kg`} /><Metric label="Odometer" value={`${vehicle.odometer.toLocaleString()} km`} /><Metric label="Fuel cost" value={`$${fuelCost.toLocaleString()}`} /><Metric label="Maintenance" value={`$${maintenanceCost.toLocaleString()}`} /></div><section className="mt-8"><h3 className="font-display font-bold text-slate-900">Operational timeline</h3><div className="mt-4 space-y-3">{relatedTrips.length ? relatedTrips.map(trip => <div key={trip.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><div className="flex justify-between gap-3"><p className="text-sm font-bold text-slate-900">{trip.source} → {trip.destination}</p><Badge status={trip.status} /></div><p className="mt-1 text-xs text-slate-500">{trip.plannedDistance} km · {trip.cargoWeight} kg cargo</p></div>) : <p className="rounded-2xl border border-dashed border-slate-200 p-5 text-sm text-slate-500">No trips have been recorded for this vehicle yet.</p>}</div></section></aside></div>;
+}
+
+function Metric({ label, value }: { label: string; value: string }) { return <div className="rounded-2xl bg-slate-50 p-4"><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</p><p className="mt-1 font-mono text-sm font-bold text-slate-900">{value}</p></div>; }
 
 function AddVehicleModal({ onClose }: { onClose: () => void }) {
   const { state, dispatch } = useStore();
@@ -206,11 +221,10 @@ function AddVehicleModal({ onClose }: { onClose: () => void }) {
           
           <div className="pt-4 flex justify-end gap-3 border-t border-slate-200/5">
             <button type="button" onClick={onClose} className="px-4.5 py-2.5 text-slate-500 soft-table-row rounded-full transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Cancel</button>
-            <button type="submit" className="px-5 py-2.5 bg-accent text-slate-900 rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Registry</button>
+            <button type="submit" className="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Registry</button>
           </div>
         </form>
       </div>
     </div>
   );
 }
-

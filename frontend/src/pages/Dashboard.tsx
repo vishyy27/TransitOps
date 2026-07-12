@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useStore } from '../store';
+import { Link } from 'react-router-dom';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, AreaChart, Area
 } from 'recharts';
-import { Truck, Map, Users, Wrench, Filter, Activity, TrendingUp, Calendar, AlertCircle } from 'lucide-react';
+import { Truck, Map, Users, Wrench, Filter, Activity, TrendingUp, Calendar, AlertCircle, Plus, ShieldCheck, ReceiptText } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { format } from 'date-fns';
 import { motion } from 'motion/react';
@@ -33,6 +34,19 @@ export function Dashboard() {
   const completedTrips = state.trips.filter(t => t.status === 'Completed').length;
   
   const driversOnDuty = state.drivers.filter(d => d.status === 'On Trip').length;
+  const expiredDrivers = state.drivers.filter(d => new Date(d.licenseExpiryDate) < new Date());
+  const alerts = [
+    ...(expiredDrivers.length ? [{ label: `${expiredDrivers.length} expired driver license${expiredDrivers.length > 1 ? 's' : ''}`, detail: 'These drivers are excluded from dispatch.', to: '/drivers', tone: 'rose' }] : []),
+    ...(maintenanceVehicles ? [{ label: `${maintenanceVehicles} vehicle${maintenanceVehicles > 1 ? 's' : ''} in maintenance`, detail: 'Review repair status before scheduling.', to: '/maintenance', tone: 'amber' }] : []),
+    ...(pendingTrips ? [{ label: `${pendingTrips} dispatch-ready draft${pendingTrips > 1 ? 's' : ''}`, detail: 'Review assignments and dispatch when ready.', to: '/trips', tone: 'indigo' }] : []),
+  ];
+  const quickActions = state.currentUser?.role === 'Safety Officer'
+    ? [{ label: 'Review driver compliance', to: '/drivers', icon: ShieldCheck }, { label: 'Open maintenance log', to: '/maintenance', icon: Wrench }]
+    : state.currentUser?.role === 'Financial Analyst'
+      ? [{ label: 'Add fuel or expense', to: '/fuel', icon: ReceiptText }, { label: 'Open profitability report', to: '/reports', icon: TrendingUp }]
+      : state.currentUser?.role === 'Driver'
+        ? [{ label: 'Create a trip', to: '/trips', icon: Plus }, { label: 'View active dispatches', to: '/trips', icon: Map }]
+        : [{ label: 'Create a trip', to: '/trips', icon: Plus }, { label: 'Register a vehicle', to: '/vehicles', icon: Truck }];
 
   const tripStats = [
     { name: 'Dispatched', value: activeTrips },
@@ -61,6 +75,10 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6 selection:bg-accent/20">
+      {(alerts.length > 0 || quickActions.length > 0) && <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+        <section className="soft-card overflow-hidden"><div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100"><AlertCircle className="w-4 h-4 text-rose-500" /><h2 className="text-sm font-bold text-slate-900">Operational attention</h2><span className="ml-auto text-[10px] font-bold uppercase tracking-widest text-slate-400">Live checks</span></div>{alerts.length ? <div className="divide-y divide-slate-100">{alerts.map(alert => <Link key={alert.label} to={alert.to} className="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50 transition-colors"><span className={cn('w-2 h-2 rounded-full shrink-0', alert.tone === 'rose' ? 'bg-rose-500' : alert.tone === 'amber' ? 'bg-amber-500' : 'bg-indigo-500')} /><div className="min-w-0"><p className="text-sm font-bold text-slate-900">{alert.label}</p><p className="text-xs text-slate-500 truncate">{alert.detail}</p></div><span className="ml-auto text-xs font-bold text-slate-400">Review →</span></Link>)}</div> : <div className="px-5 py-6 text-sm text-slate-500">All operational checks are clear.</div>}</section>
+        <section className="rounded-[32px] bg-slate-950 p-5 text-white"><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{state.currentUser?.role} workspace</p><h2 className="mt-1 font-display text-lg font-bold">Start a task</h2><div className="mt-4 grid gap-2">{quickActions.map(action => <Link key={action.label} to={action.to} className="flex items-center gap-2 rounded-2xl bg-white/10 px-3 py-3 text-sm font-semibold hover:bg-white/20"><action.icon className="w-4 h-4" />{action.label}</Link>)}</div></section>
+      </div>}
       {/* Top Filter Bar */}
       <div className="soft-card p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex items-center gap-3 text-slate-900 font-semibold font-display">
@@ -313,7 +331,7 @@ function FleetSimulationMap() {
             onClick={() => setSimulate(!simulate)}
             className={cn(
               "px-2.5 py-1 rounded-md transition-all cursor-pointer font-bold",
-              simulate ? "bg-accent text-slate-900" : "bg-white text-slate-500"
+              simulate ? "bg-accent text-white" : "bg-white text-slate-500"
             )}
           >
             {simulate ? 'Active' : 'Disabled'}
@@ -321,9 +339,9 @@ function FleetSimulationMap() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         {/* SVG Route Visualization map */}
-        <div className="lg:col-span-3 bg-white border border-slate-200 rounded-full relative overflow-hidden h-[380px] flex items-center justify-center">
+        <div className="xl:col-span-3 bg-white border border-slate-200 rounded-3xl relative overflow-hidden h-[380px] flex items-center justify-center">
           <svg className="w-full h-full max-h-[380px]" viewBox="0 0 800 400" fill="none">
             {/* Grid Pattern Background */}
             <defs>
@@ -446,11 +464,11 @@ function FleetSimulationMap() {
         </div>
 
         {/* Dispatch Tracker Sidebar panel */}
-        <div className="border border-slate-200 rounded-full bg-white p-4 space-y-4 max-h-[380px] overflow-y-auto">
+        <div className="border border-slate-200 rounded-3xl bg-white p-4 space-y-4 max-h-[380px] overflow-y-auto">
           <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Dispatches</p>
           <div className="space-y-3">
             {currentTrips.map(trip => (
-              <div key={trip.id} className="p-3 bg-white border border-slate-200 rounded-full space-y-2 shadow-xs">
+              <div key={trip.id} className="p-3 bg-slate-50/70 border border-slate-200 rounded-2xl space-y-2 shadow-sm">
                 <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   <span className="font-mono">{trip.vehicle}</span>
                   <span className="flex items-center gap-1">
@@ -475,5 +493,3 @@ function FleetSimulationMap() {
     </div>
   );
 }
-
-

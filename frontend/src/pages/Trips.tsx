@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useStore } from '../store';
-import { Plus, X, ArrowRight, CheckCircle, XCircle, MapPin, Gauge, ShieldAlert, Calendar } from 'lucide-react';
+import { Plus, X, ArrowRight, CheckCircle, XCircle, MapPin, Gauge, ShieldAlert, Calendar, Download } from 'lucide-react';
 import { TripStatus } from '../types';
 import { cn } from '../lib/utils';
 import { Badge } from '../components/Badge';
+import { exportToCSV } from '../lib/export';
 
 export function Trips() {
   const { state, dispatch } = useStore();
@@ -24,13 +25,22 @@ export function Trips() {
           <h2 className="text-lg font-bold text-slate-900 font-display leading-tight">Trip Dispatch Center</h2>
           <p className="text-xs text-slate-500 font-medium">Manage and monitor driver routes & cargo shipments</p>
         </div>
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-4.5 py-2.5 soft-button font-semibold text-xs uppercase tracking-wider cursor-pointer"
-        >
-          <Plus className="w-4.5 h-4.5" />
-          Create Trip
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => exportToCSV(state.trips, 'trips')}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 soft-button-secondary font-semibold text-xs uppercase tracking-wider cursor-pointer"
+          >
+            <Download className="w-4 h-4 text-slate-400" />
+            Export CSV
+          </button>
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 px-4.5 py-2.5 soft-button font-semibold text-xs uppercase tracking-wider cursor-pointer"
+          >
+            <Plus className="w-4.5 h-4.5" />
+            Create Trip
+          </button>
+        </div>
       </div>
 
       
@@ -296,7 +306,7 @@ function CreateTripModal({ onClose }: { onClose: () => void }) {
           
           <div className="pt-4 flex justify-end gap-3 border-t border-slate-200/5">
             <button type="button" onClick={onClose} className="px-4.5 py-2.5 text-slate-500 soft-table-row rounded-full transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Cancel</button>
-            <button type="submit" disabled={isWeightExceeded} className="px-5 py-2.5 bg-accent disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Route</button>
+            <button type="submit" disabled={isWeightExceeded} className="px-5 py-2.5 bg-accent disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Route</button>
           </div>
         </form>
       </div>

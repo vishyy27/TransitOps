@@ -19,7 +19,7 @@ export function Fuel() {
             onClick={() => setTab('fuel')}
             className={cn(
               "flex-1 sm:flex-initial py-2 px-5 font-bold text-xs uppercase tracking-wider rounded-3xl transition-all flex items-center justify-center gap-2 cursor-pointer",
-              tab === 'fuel' ? "bg-ink text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"
+              tab === 'fuel' ? "bg-ink text-white shadow-sm" : "text-slate-500 hover:text-slate-900"
             )}
           >
             <FuelIcon className="w-4 h-4 shrink-0" /> Fuel Logs
@@ -28,7 +28,7 @@ export function Fuel() {
             onClick={() => setTab('expenses')}
             className={cn(
               "flex-1 sm:flex-initial py-2 px-5 font-bold text-xs uppercase tracking-wider rounded-3xl transition-all flex items-center justify-center gap-2 cursor-pointer",
-              tab === 'expenses' ? "bg-ink text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"
+              tab === 'expenses' ? "bg-ink text-white shadow-sm" : "text-slate-500 hover:text-slate-900"
             )}
           >
             <Receipt className="w-4 h-4 shrink-0" /> Expenses
@@ -36,11 +36,11 @@ export function Fuel() {
         </div>
 
         {tab === 'fuel' ? (
-          <button onClick={() => setIsFuelModalOpen(true)} className="w-full sm:w-auto flex items-center justify-center gap-2 px-4.5 py-2.5 bg-accent text-slate-900 rounded-full hover:bg-accent/90 shadow-lg shadow-accent/15 font-semibold text-xs uppercase tracking-wider cursor-pointer">
+          <button onClick={() => setIsFuelModalOpen(true)} className="w-full sm:w-auto flex items-center justify-center gap-2 px-4.5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-lg shadow-accent/15 font-semibold text-xs uppercase tracking-wider cursor-pointer">
             <Plus className="w-4.5 h-4.5" /> Add Fuel Log
           </button>
         ) : (
-          <button onClick={() => setIsExpenseModalOpen(true)} className="w-full sm:w-auto flex items-center justify-center gap-2 px-4.5 py-2.5 bg-accent text-slate-900 rounded-full hover:bg-accent/90 shadow-lg shadow-accent/15 font-semibold text-xs uppercase tracking-wider cursor-pointer">
+          <button onClick={() => setIsExpenseModalOpen(true)} className="w-full sm:w-auto flex items-center justify-center gap-2 px-4.5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-lg shadow-accent/15 font-semibold text-xs uppercase tracking-wider cursor-pointer">
             <Plus className="w-4.5 h-4.5" /> Add Expense
           </button>
         )}
@@ -181,7 +181,7 @@ function AddFuelModal({ onClose }: { onClose: () => void }) {
           </div>
           <div className="pt-4 flex justify-end gap-3 border-t border-slate-200/5">
             <button type="button" onClick={onClose} className="px-4.5 py-2.5 text-slate-500 soft-table-row rounded-full transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Cancel</button>
-            <button type="submit" className="px-5 py-2.5 bg-accent text-slate-900 rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Log</button>
+            <button type="submit" className="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Log</button>
           </div>
         </form>
       </div>
@@ -254,7 +254,7 @@ function AddExpenseModal({ onClose }: { onClose: () => void }) {
           </div>
           <div className="pt-4 flex justify-end gap-3 border-t border-slate-200/5">
             <button type="button" onClick={onClose} className="px-4.5 py-2.5 text-slate-500 soft-table-row rounded-full transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Cancel</button>
-            <button type="submit" className="px-5 py-2.5 bg-accent text-slate-900 rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Expense</button>
+            <button type="submit" className="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Expense</button>
           </div>
         </form>
       </div>

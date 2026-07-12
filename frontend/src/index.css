@@ -71,3 +71,85 @@ h1, h2, h3, h4, h5, h6 {
   color: #0f172a !important;
   box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
 }
+
+/* Frontend-only low-light command view. Kept scoped so embedded dialogs remain legible. */
+.theme-dark { color: #e2e8f0; }
+.theme-dark .soft-card,
+.theme-dark .soft-inner,
+.theme-dark aside,
+.theme-dark main > div > .bg-white,
+.theme-dark header > div > button { background-color: rgba(30, 41, 59, .88) !important; border-color: rgba(148, 163, 184, .16) !important; }
+.theme-dark .text-slate-900 { color: #f8fafc !important; }
+.theme-dark .text-slate-700 { color: #cbd5e1 !important; }
+.theme-dark .text-slate-500, .theme-dark .text-slate-400 { color: #94a3b8 !important; }
+.theme-dark .bg-white, .theme-dark .bg-slate-50, .theme-dark .bg-\[\#f4f6f9\] { background-color: rgba(30, 41, 59, .82) !important; }
+.theme-dark .border-slate-200, .theme-dark .border-white { border-color: rgba(148, 163, 184, .18) !important; }
+
+/* Print Styles for Premium PDF Generation */
+@media print {
+  aside, header, button, select, .relative.w-full.sm\:w-80, .flex-wrap, .soft-card:first-of-type, .bg-cream-light\/60, .flex.items-center.gap-2.bg-cream-light {
+    display: none !important;
+  }
+  
+  body, html, #root {
+    background: #FFF !important;
+    color: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  .grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+  }
+
+  .grid > div {
+    page-break-inside: avoid !important;
+    width: 100% !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: none !important;
+    background: #FFF !important;
+    padding: 1rem !important;
+  }
+
+  .soft-card {
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: none !important;
+    background: #FFF !important;
+  }
+
+  /* Ensure text is dark and legible in print */
+  .text-slate-900, .text-ink {
+    color: #000 !important;
+  }
+  .text-slate-500, .text-rust {
+    color: #334155 !important;
+  }
+
+  body.printing-invoice #root {
+    display: none !important;
+  }
+  body.printing-invoice #invoice-print-section {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    background: white !important;
+    color: black !important;
+  }
+}
+
+#invoice-print-section {
+  display: none;
+}

@@ -197,7 +197,7 @@ function CreateMaintenanceModal({ onClose }: { onClose: () => void }) {
           
           <div className="pt-4 flex justify-end gap-3 border-t border-slate-200/5">
             <button type="button" onClick={onClose} className="px-4.5 py-2.5 text-slate-500 soft-table-row rounded-full transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Cancel</button>
-            <button type="submit" className="px-5 py-2.5 bg-accent text-slate-900 rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Log</button>
+            <button type="submit" className="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Log</button>
           </div>
         </form>
       </div>

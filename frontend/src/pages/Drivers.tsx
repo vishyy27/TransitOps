@@ -9,6 +9,7 @@ export function Drivers() {
   const { state, dispatch } = useStore();
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
 
   const filteredDrivers = state.drivers.filter(d => 
     d.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -60,6 +61,7 @@ export function Drivers() {
                 <th className="py-4 px-5">License Status</th>
                 <th className="py-4 px-5">Safety Score</th>
                 <th className="py-4 px-5">Status</th>
+                <th className="py-4 px-5 text-right">Profile</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-cream-light/90">
@@ -101,12 +103,13 @@ export function Drivers() {
                     <td className="py-4 px-5">
                       <Badge status={driver.status} />
                     </td>
+                    <td className="py-4 px-5 text-right"><button onClick={() => setSelectedDriverId(driver.id)} className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-950">Details</button></td>
                   </tr>
                 );
               })}
               {filteredDrivers.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-10 text-center text-sm font-semibold text-slate-500/80">No registered drivers match the search criteria.</td>
+                  <td colSpan={7} className="py-10 text-center text-sm font-semibold text-slate-500/80">No registered drivers match the search criteria.</td>
                 </tr>
               )}
             </tbody>
@@ -117,8 +120,18 @@ export function Drivers() {
       {isModalOpen && (
         <AddDriverModal onClose={() => setIsModalOpen(false)} />
       )}
+      {selectedDriverId && <DriverDrawer driverId={selectedDriverId} onClose={() => setSelectedDriverId(null)} />}
     </div>
   );
+}
+
+function DriverDrawer({ driverId, onClose }: { driverId: string; onClose: () => void }) {
+  const { state } = useStore();
+  const driver = state.drivers.find(item => item.id === driverId);
+  if (!driver) return null;
+  const trips = state.trips.filter(trip => trip.driverId === driverId);
+  const expired = new Date(driver.licenseExpiryDate) < new Date();
+  return <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-sm" onClick={onClose}><aside onClick={event => event.stopPropagation()} className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-2xl sm:p-8"><div className="flex justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Driver profile</p><h2 className="mt-1 font-display text-2xl font-bold text-slate-900">{driver.name}</h2><p className="text-sm text-slate-500">{driver.contactNumber}</p></div><button onClick={onClose} className="rounded-full p-2 text-slate-500 hover:bg-slate-100"><X className="w-5 h-5" /></button></div><div className="mt-5 flex gap-2"><Badge status={driver.status} /><span className={cn('rounded-full px-2.5 py-1 text-xs font-bold', expired ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600')}>{expired ? 'License expired' : 'License valid'}</span></div><div className="mt-7 grid grid-cols-2 gap-3"><div className="rounded-2xl bg-slate-50 p-4"><p className="text-[10px] font-bold uppercase text-slate-400">Safety score</p><p className="mt-1 font-mono text-xl font-bold text-slate-900">{driver.safetyScore}</p></div><div className="rounded-2xl bg-slate-50 p-4"><p className="text-[10px] font-bold uppercase text-slate-400">License</p><p className="mt-1 text-sm font-bold text-slate-900">{driver.licenseCategory} · {driver.licenseNumber}</p><p className="mt-1 text-xs text-slate-500">Expires {new Date(driver.licenseExpiryDate).toLocaleDateString()}</p></div></div><section className="mt-8"><h3 className="font-display font-bold text-slate-900">Trip history</h3><div className="mt-4 space-y-3">{trips.length ? trips.map(trip => <div key={trip.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><div className="flex justify-between gap-2"><p className="text-sm font-bold text-slate-900">{trip.source} → {trip.destination}</p><Badge status={trip.status} /></div><p className="mt-1 text-xs text-slate-500">{trip.plannedDistance} km · {trip.cargoWeight} kg cargo</p></div>) : <p className="rounded-2xl border border-dashed border-slate-200 p-5 text-sm text-slate-500">No trip activity recorded yet.</p>}</div></section></aside></div>;
 }
 
 function AddDriverModal({ onClose }: { onClose: () => void }) {
@@ -210,11 +223,10 @@ function AddDriverModal({ onClose }: { onClose: () => void }) {
           
           <div className="pt-4 flex justify-end gap-3 border-t border-slate-200/5">
             <button type="button" onClick={onClose} className="px-4.5 py-2.5 text-slate-500 soft-table-row rounded-full transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Cancel</button>
-            <button type="submit" className="px-5 py-2.5 bg-accent text-slate-900 rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Registry</button>
+            <button type="submit" className="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-md transition-colors font-semibold text-xs uppercase tracking-wider cursor-pointer">Save Registry</button>
           </div>
         </form>
       </div>
     </div>
   );
 }
-
