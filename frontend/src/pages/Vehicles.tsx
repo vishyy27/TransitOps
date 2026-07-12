@@ -387,8 +387,30 @@ function EditVehicleModal({ vehicle, onClose }: { vehicle: Vehicle; onClose: () 
   return <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-sm" onClick={onClose}><aside onClick={event => event.stopPropagation()} className={cn("absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto p-6 shadow-2xl sm:p-8 border-l transition-colors duration-200", isDark ? "bg-slate-900 text-slate-100 border-slate-800" : "bg-white text-slate-900 border-slate-100")}><div className="flex items-start justify-between"><div><p className={cn("text-xs font-bold uppercase tracking-[0.16em]", isDark ? "text-slate-500" : "text-slate-400")}>Fleet asset</p><h2 className={cn("mt-1 font-display text-2xl font-bold", isDark ? "text-slate-100" : "text-slate-905")}>{vehicle.registrationNumber}</h2><p className={cn("text-sm", isDark ? "text-slate-400" : "text-slate-550")}>{vehicle.name}</p></div><button onClick={onClose} className={cn("rounded-full p-2 transition-colors cursor-pointer", isDark ? "text-slate-400 hover:bg-slate-800" : "text-slate-500 hover:bg-slate-100")}><X className="w-5 h-5" /></button></div><div className="mt-5"><Badge status={vehicle.status} /></div>
   
   <div className={cn("mt-8 flex gap-4 border-b", isDark ? "border-slate-800" : "border-slate-100")}>
-    <button onClick={() => setActiveTab('overview')} className={cn("pb-2 text-sm font-bold border-b-2 transition-colors", activeTab === 'overview' ? 'border-accent text-slate-900 dark:text-white' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}>Overview</button>
-    <button onClick={() => setActiveTab('documents')} className={cn("pb-2 text-sm font-bold border-b-2 transition-colors", activeTab === 'documents' ? 'border-accent text-slate-900' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}>Document Management</button>
+    <button 
+      onClick={() => setActiveTab('overview')} 
+      className={cn(
+        "pb-2 text-sm font-bold border-b-2 transition-colors cursor-pointer", 
+        activeTab === 'overview' ? 'border-accent' : 'border-transparent',
+        isDark 
+          ? (activeTab === 'overview' ? 'text-white' : 'text-slate-500 hover:text-slate-300') 
+          : (activeTab === 'overview' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-650')
+      )}
+    >
+      Overview
+    </button>
+    <button 
+      onClick={() => setActiveTab('documents')} 
+      className={cn(
+        "pb-2 text-sm font-bold border-b-2 transition-colors cursor-pointer", 
+        activeTab === 'documents' ? 'border-accent' : 'border-transparent',
+        isDark 
+          ? (activeTab === 'documents' ? 'text-white' : 'text-slate-500 hover:text-slate-300') 
+          : (activeTab === 'documents' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-650')
+      )}
+    >
+      Document Management
+    </button>
   </div>
 
   {activeTab === 'overview' ? (
