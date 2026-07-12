@@ -8,7 +8,6 @@ export interface User {
 }
 
 export type VehicleStatus = 'Available' | 'On Trip' | 'In Shop' | 'Retired';
-
 export interface Vehicle {
   id: string;
   registrationNumber: string;
@@ -21,7 +20,6 @@ export interface Vehicle {
 }
 
 export type DriverStatus = 'Available' | 'On Trip' | 'Off Duty' | 'Suspended';
-
 export interface Driver {
   id: string;
   name: string;
@@ -34,7 +32,6 @@ export interface Driver {
 }
 
 export type TripStatus = 'Draft' | 'Dispatched' | 'Completed' | 'Cancelled';
-
 export interface Trip {
   id: string;
   source: string;
@@ -51,7 +48,6 @@ export interface Trip {
 }
 
 export type MaintenanceStatus = 'Active' | 'Closed';
-
 export interface MaintenanceRecord {
   id: string;
   vehicleId: string;
@@ -84,4 +80,26 @@ export interface ActivityLog {
   date: string;
   message: string;
   type: 'Trip' | 'Maintenance' | 'System';
+}
+
+export type CustomerStatus = 'Active' | 'Inactive' | 'Lead';
+export interface Customer {
+  id: string;
+  name: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  status: CustomerStatus;
+  totalRevenue: number;
+}
+
+export type InvoiceStatus = 'Paid' | 'Pending' | 'Overdue';
+export interface Invoice {
+  id: string;
+  customerId: string;
+  tripId: string;
+  amount: number;
+  issueDate: string;
+  dueDate: string;
+  status: InvoiceStatus;
 }

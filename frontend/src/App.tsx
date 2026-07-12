@@ -17,6 +17,8 @@ import { Trips } from './pages/Trips';
 import { Maintenance } from './pages/Maintenance';
 import { Fuel } from './pages/Fuel';
 import { Reports } from './pages/Reports';
+import { Customers } from './pages/Customers';
+import { Invoices } from './pages/Invoices';
 
 export default function App() {
   return (
@@ -33,11 +35,13 @@ export default function App() {
             <Route path="maintenance" element={<Maintenance />} />
             <Route path="fuel" element={<Fuel />} />
             <Route path="reports" element={<Reports />} />
+          <Route path="customers" element={<Customers />} />
+          <Route path="invoices" element={<Invoices />} />
           </Route>
         </Routes>
       </BrowserRouter>
       <Toaster position="top-right" toastOptions={{
-        className: 'font-sans text-ink',
+        className: 'font-sans text-slate-900',
         style: {
           border: '1px solid #FBE9D0',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',

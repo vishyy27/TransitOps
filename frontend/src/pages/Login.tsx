@@ -52,40 +52,36 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-ink flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden font-sans selection:bg-accent/20">
-      {/* Background blobs */}
-      <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-rust/20 rounded-full blur-3xl opacity-50" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-sage/20 rounded-full blur-3xl opacity-50" />
-
+    <div className="min-h-screen bg-[#e5e9f0] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md z-10 text-center">
-        <div className="mx-auto w-12 h-12 bg-cream text-ink border border-cream/50 rounded-2xl flex items-center justify-center shadow-lg mb-4">
-          <Truck className="w-7 h-7 text-accent" />
+        <div className="mx-auto w-16 h-16 bg-black text-white rounded-[24px] flex items-center justify-center shadow-lg mb-6">
+          <Truck className="w-8 h-8" />
         </div>
-        <h2 className="text-4xl font-extrabold text-cream font-display tracking-tight leading-none">
+        <h2 className="text-4xl font-bold text-slate-900 font-display tracking-tight leading-none mb-2">
           TransitOps
         </h2>
-        <p className="mt-2.5 text-sm text-sage font-medium tracking-wide">
-          Enterprise Transport Management Suite
+        <p className="text-slate-500 font-medium">
+          Enterprise Transport Management
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md z-10">
-        <div className="bg-cream-light py-8 px-6 shadow-2xl rounded-2xl border border-cream/40">
+        <div className="soft-card p-8">
           {/* Role selection tabs */}
-          <div className="mb-6">
-            <label className="block text-xs font-semibold text-ink/75 uppercase tracking-wider mb-2 text-center">
-              Choose Persona (Demo Login)
+          <div className="mb-8">
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 text-center">
+              Select Demo Persona
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               {ROLES.map(r => (
                 <button
                   key={r}
                   type="button"
                   onClick={() => handleRoleSelect(r)}
-                  className={`py-2 px-3 text-xs font-bold rounded-xl transition-all duration-200 border cursor-pointer ${
+                  className={`py-3 px-3 text-xs font-bold rounded-2xl transition-all duration-200 cursor-pointer ${
                     role === r 
-                      ? 'bg-ink text-cream border-ink shadow-sm' 
-                      : 'bg-white text-rust border-cream hover:bg-white/80 hover:text-ink'
+                      ? 'bg-black text-white shadow-md' 
+                      : 'bg-[#f4f6f9] text-slate-500 hover:bg-slate-200 hover:text-slate-900'
                   }`}
                 >
                   {r}
@@ -94,49 +90,51 @@ export function Login() {
             </div>
           </div>
 
-          <form className="space-y-5" onSubmit={handleLogin}>
+          <form className="space-y-6" onSubmit={handleLogin}>
             {error && (
-              <div className="bg-red-50 text-red-600 p-3.5 rounded-xl text-xs font-semibold border border-red-200 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-red-500 shrink-0" />
+              <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-sm font-semibold border border-red-100 flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 shrink-0" />
                 {error}
               </div>
             )}
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 ml-1 mb-2">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="soft-input w-full pl-12 pr-4 py-3.5 font-medium"
+                    placeholder="name@transitops.com"
+                  />
+                </div>
+              </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-ink">Email address</label>
-              <div className="mt-1.5 relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-sage" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className="appearance-none block w-full pl-10 pr-4 py-2.5 border border-sage/30 rounded-xl shadow-sm placeholder-sage/70 text-ink focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent text-sm bg-white font-medium transition-all"
-                  placeholder="name@transitops.com"
-                />
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 ml-1 mb-2">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    className="soft-input w-full pl-12 pr-4 py-3.5 font-medium"
+                    placeholder="••••••••"
+                  />
+                </div>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-ink">Password</label>
-              <div className="mt-1.5 relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-sage" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="appearance-none block w-full pl-10 pr-4 py-2.5 border border-sage/30 rounded-xl shadow-sm placeholder-sage/70 text-ink focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent text-sm bg-white font-medium transition-all"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-
-            <div className="pt-2">
+            <div className="pt-4">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-accent hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50 transition-all duration-200 cursor-pointer"
+                className="soft-button w-full flex justify-center py-4 px-4 text-sm cursor-pointer disabled:opacity-50"
               >
-                {loading ? 'Authenticating...' : 'Access Dashboard'}
+                {loading ? 'Authenticating...' : 'Sign In'}
               </button>
             </div>
           </form>
@@ -145,4 +143,3 @@ export function Login() {
     </div>
   );
 }
-

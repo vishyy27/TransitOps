@@ -15,6 +15,8 @@ interface State {
   fuelLogs: FuelLog[];
   expenses: Expense[];
   activityLogs: ActivityLog[];
+  customers: Customer[];
+  invoices: Invoice[];
 }
 
 type Action = 
@@ -32,7 +34,9 @@ type Action =
   | { type: 'CREATE_MAINTENANCE'; payload: MaintenanceRecord }
   | { type: 'CLOSE_MAINTENANCE'; payload: string }
   | { type: 'ADD_FUEL_LOG'; payload: FuelLog }
-  | { type: 'ADD_EXPENSE'; payload: Expense };
+  | { type: 'ADD_EXPENSE'; payload: Expense }
+  | { type: 'ADD_CUSTOMER'; payload: Customer }
+  | { type: 'ADD_INVOICE'; payload: Invoice };
 
 const seedState: State = {
   currentUser: null,
@@ -76,6 +80,15 @@ const seedState: State = {
   fuelLogs: [],
   expenses: [],
   activityLogs: [],
+  customers: [
+    { id: 'c1', name: 'Global Logistics Inc.', contactPerson: 'John Smith', email: 'john@global.logistics.com', phone: '555-0909', status: 'Active', totalRevenue: 125000 },
+    { id: 'c2', name: 'Apex Shipping', contactPerson: 'Alice Cooper', email: 'alice@apex.com', phone: '555-1234', status: 'Active', totalRevenue: 85000 },
+  ],
+  invoices: [
+    { id: 'INV-1001', customerId: 'c1', tripId: 't1', amount: 4500, issueDate: '2026-07-01', dueDate: '2026-07-15', status: 'Pending' },
+    { id: 'INV-1002', customerId: 'c2', tripId: 't2', amount: 3200, issueDate: '2026-06-15', dueDate: '2026-06-30', status: 'Overdue' },
+    { id: 'INV-1003', customerId: 'c1', tripId: 't3', amount: 8900, issueDate: '2026-06-01', dueDate: '2026-06-15', status: 'Paid' },
+  ],
 };
 
 function logActivity(state: State, message: string, type: ActivityLog['type']): ActivityLog[] {
@@ -225,6 +238,12 @@ function reducer(state: State, action: Action): State {
     case 'ADD_EXPENSE':
       toast.success('Expense added');
       return { ...state, expenses: [...state.expenses, action.payload] };
+    case 'ADD_CUSTOMER':
+      toast.success('Customer added successfully');
+      return { ...state, customers: [...state.customers, action.payload] };
+    case 'ADD_INVOICE':
+      toast.success('Invoice generated');
+      return { ...state, invoices: [...state.invoices, action.payload] };
 
     default:
       return state;

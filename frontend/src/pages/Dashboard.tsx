@@ -53,30 +53,30 @@ export function Dashboard() {
   ];
 
   const statCards = [
-    { title: 'Available Vehicles', value: availableVehicles, icon: Truck, color: 'text-sage', bg: 'bg-sage/10 border-sage/20', trend: 'Fleet ready' },
+    { title: 'Available Vehicles', value: availableVehicles, icon: Truck, color: 'text-slate-400', bg: 'bg-sage/10 border-sage/20', trend: 'Fleet ready' },
     { title: 'Active Trips', value: activeTrips, icon: Map, color: 'text-accent', bg: 'bg-accent/10 border-accent/20', trend: `${pendingTrips} pending draft` },
-    { title: 'In Maintenance', value: maintenanceVehicles, icon: Wrench, color: 'text-rust', bg: 'bg-rust/10 border-rust/20', trend: 'Requires attention' },
-    { title: 'Drivers On Duty', value: driversOnDuty, icon: Users, color: 'text-ink', bg: 'bg-ink/5 border-ink/20', trend: 'Active shifts' },
+    { title: 'In Maintenance', value: maintenanceVehicles, icon: Wrench, color: 'text-slate-500', bg: 'bg-rust/10 border-rust/20', trend: 'Requires attention' },
+    { title: 'Drivers On Duty', value: driversOnDuty, icon: Users, color: 'text-slate-900', bg: 'bg-ink/5 border-ink/20', trend: 'Active shifts' },
   ];
 
   return (
     <div className="space-y-6 selection:bg-accent/20">
       {/* Top Filter Bar */}
-      <div className="bg-white rounded-2xl p-5 shadow-sm border border-cream/80 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex items-center gap-3 text-ink font-semibold font-display">
-          <div className="p-2 bg-cream rounded-xl">
+      <div className="soft-card p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="flex items-center gap-3 text-slate-900 font-semibold font-display">
+          <div className="p-2 bg-white rounded-full">
             <Filter className="w-5 h-5 text-accent" />
           </div>
           <div>
             <h2 className="text-base font-bold leading-tight">Dashboard Overview</h2>
-            <p className="text-xs text-rust font-medium">Real-time logistics analytics & metrics</p>
+            <p className="text-xs text-slate-500 font-medium">Real-time logistics analytics & metrics</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2.5 w-full sm:w-auto">
           <select 
             value={filterType} 
             onChange={e => setFilterType(e.target.value)} 
-            className="px-3.5 py-2 bg-cream-light border border-cream/85 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-accent text-ink cursor-pointer flex-1 sm:flex-initial"
+            className="px-3.5 py-2 bg-transparent border border-slate-200/85 rounded-full text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-accent text-slate-900 cursor-pointer flex-1 sm:flex-initial"
           >
             <option value="All">All Types</option>
             <option value="Van">Van</option>
@@ -86,7 +86,7 @@ export function Dashboard() {
           <select 
             value={filterStatus} 
             onChange={e => setFilterStatus(e.target.value)} 
-            className="px-3.5 py-2 bg-cream-light border border-cream/85 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-accent text-ink cursor-pointer flex-1 sm:flex-initial"
+            className="px-3.5 py-2 bg-transparent border border-slate-200/85 rounded-full text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-accent text-slate-900 cursor-pointer flex-1 sm:flex-initial"
           >
             <option value="All">All Statuses</option>
             <option value="Available">Available</option>
@@ -99,17 +99,17 @@ export function Dashboard() {
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat, i) => (
-          <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-cream/50 flex flex-col justify-between transition-all duration-300 hover:shadow-md group">
+          <div key={i} className="soft-card p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-md group">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-xs font-semibold text-rust uppercase tracking-wider">{stat.title}</p>
-                <p className="text-3xl font-extrabold font-mono text-ink mt-2 leading-none">{stat.value}</p>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{stat.title}</p>
+                <p className="text-3xl font-extrabold font-mono text-slate-900 mt-2 leading-none">{stat.value}</p>
               </div>
-              <div className={cn("p-3 rounded-xl border transition-all group-hover:scale-105", stat.bg, stat.color)}>
+              <div className={cn("p-3 rounded-full border transition-all group-hover:scale-105", stat.bg, stat.color)}>
                 <stat.icon className="w-5 h-5" />
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-cream-light/85 flex items-center gap-1.5 text-xs font-medium text-sage">
+            <div className="mt-4 pt-3 border-t border-slate-200/5/85 flex items-center gap-1.5 text-xs font-medium text-slate-400">
               <TrendingUp className="w-3.5 h-3.5 text-accent shrink-0" />
               <span>{stat.trend}</span>
             </div>
@@ -117,22 +117,22 @@ export function Dashboard() {
         ))}
         
         {/* Fleet Utilization Progress Banner */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-cream/50 col-span-1 sm:col-span-2 lg:col-span-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="soft-card p-6 col-span-1 sm:col-span-2 lg:col-span-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
-            <p className="text-xs font-semibold text-rust uppercase tracking-wider">Fleet Utilization Index</p>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Fleet Utilization Index</p>
             <div className="flex items-baseline gap-2">
-              <p className="text-4xl font-extrabold font-mono text-ink">{fleetUtilization}%</p>
-              <p className="text-xs text-sage font-semibold">capacity in active rotation</p>
+              <p className="text-4xl font-extrabold font-mono text-slate-900">{fleetUtilization}%</p>
+              <p className="text-xs text-slate-400 font-semibold">capacity in active rotation</p>
             </div>
           </div>
           <div className="flex-1 max-w-md w-full">
-            <div className="w-full h-3.5 bg-cream-light rounded-full overflow-hidden relative shadow-inner border border-cream/60">
+            <div className="w-full h-3.5 bg-transparent rounded-full overflow-hidden relative shadow-inner border border-slate-200/60">
               <div 
                 className="absolute top-0 left-0 h-full bg-accent transition-all duration-1000 rounded-full" 
                 style={{ width: `${fleetUtilization}%` }}
               />
             </div>
-            <div className="flex justify-between mt-1.5 text-[10px] text-rust font-semibold">
+            <div className="flex justify-between mt-1.5 text-[10px] text-slate-500 font-semibold">
               <span>0% (Idle)</span>
               <span>100% (Maximum Load)</span>
             </div>
@@ -143,13 +143,13 @@ export function Dashboard() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Line Chart */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-cream/50 lg:col-span-2 flex flex-col">
+        <div className="soft-card p-6 lg:col-span-2 flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold font-display text-ink leading-none">Utilization Curve</h3>
-              <p className="text-xs text-rust font-medium mt-1">Weekly active fleet load trend</p>
+              <h3 className="text-lg font-bold font-display text-slate-900 leading-none">Utilization Curve</h3>
+              <p className="text-xs text-slate-500 font-medium mt-1">Weekly active fleet load trend</p>
             </div>
-            <Calendar className="w-4 h-4 text-sage" />
+            <Calendar className="w-4 h-4 text-slate-400" />
           </div>
           <div className="h-72 flex-1 min-h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -160,24 +160,24 @@ export function Dashboard() {
                     <stop offset="95%" stopColor="#6366F1" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                <XAxis dataKey="day" stroke="#475569" fontSize={11} tickLine={false} axisLine={false} fontClassName="font-semibold" />
-                <YAxis stroke="#475569" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `${val}%`} fontClassName="font-semibold" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#cbd5e1" />
+                <XAxis dataKey="day" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} fontClassName="font-semibold" />
+                <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `${val}%`} fontClassName="font-semibold" />
                 <Tooltip 
                   contentStyle={{ background: '#0F172A', color: '#FFF', borderRadius: '12px', border: 'none', boxShadow: '0 8px 16px -4px rgba(0,0,0,0.15)' }}
                   labelStyle={{ fontWeight: 'bold' }}
                 />
-                <Area type="monotone" dataKey="utilization" stroke="#6366F1" strokeWidth={3} fillOpacity={1} fill="url(#utilizationColor)" dot={{ r: 4, strokeWidth: 2, stroke: '#6366F1', fill: '#FFF' }} name="Utilization" />
+                <Area type="monotone" dataKey="utilization" stroke="#000000" strokeWidth={3} fillOpacity={1} fill="url(#utilizationColor)" dot={{ r: 4, strokeWidth: 2, stroke: '#6366F1', fill: '#FFF' }} name="Utilization" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Pie Chart */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-cream/50 flex flex-col">
+        <div className="soft-card p-6 flex flex-col">
           <div>
-            <h3 className="text-lg font-bold font-display text-ink leading-none">Active Trips Status</h3>
-            <p className="text-xs text-rust font-medium mt-1">Trip cycle stage distribution</p>
+            <h3 className="text-lg font-bold font-display text-slate-900 leading-none">Active Trips Status</h3>
+            <p className="text-xs text-slate-500 font-medium mt-1">Trip cycle stage distribution</p>
           </div>
           <div className="h-72 flex-1 flex flex-col items-center justify-center min-h-[280px]">
             {tripStats.length > 0 ? (
@@ -201,13 +201,13 @@ export function Dashboard() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <p className="text-3xl font-extrabold font-mono text-ink leading-none">{state.trips.length}</p>
-                  <p className="text-[10px] text-rust uppercase tracking-wider font-semibold mt-1">Total Trips</p>
+                  <p className="text-3xl font-extrabold font-mono text-slate-900 leading-none">{state.trips.length}</p>
+                  <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mt-1">Total Trips</p>
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8 text-sm text-rust flex flex-col items-center gap-2">
-                <AlertCircle className="w-8 h-8 text-sage" />
+              <div className="text-center py-8 text-sm text-slate-500 flex flex-col items-center gap-2">
+                <AlertCircle className="w-8 h-8 text-slate-400" />
                 <p>No trips recorded in this cycle.</p>
               </div>
             )}
@@ -216,7 +216,7 @@ export function Dashboard() {
               {tripStats.map((stat, i) => (
                 <div key={stat.name} className="flex items-center gap-1.5 text-xs font-semibold">
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                  <span className="text-ink/80">{stat.name} ({stat.value})</span>
+                  <span className="text-slate-900/80">{stat.name} ({stat.value})</span>
                 </div>
               ))}
             </div>
@@ -229,30 +229,30 @@ export function Dashboard() {
 
 
       {/* Activity Logs Timeline */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-cream/50">
+      <div className="soft-card p-6">
         <div className="flex items-center gap-2 mb-6">
           <Activity className="w-5 h-5 text-accent" />
           <div>
-            <h3 className="text-lg font-bold font-display text-ink leading-none">System Activity Feed</h3>
-            <p className="text-xs text-rust font-medium mt-1">Live updates from transit coordinators</p>
+            <h3 className="text-lg font-bold font-display text-slate-900 leading-none">System Activity Feed</h3>
+            <p className="text-xs text-slate-500 font-medium mt-1">Live updates from transit coordinators</p>
           </div>
         </div>
-        <div className="relative pl-6 border-l-2 border-cream/70 space-y-6">
+        <div className="relative pl-6 border-l-2 border-slate-200/70 space-y-6">
           {state.activityLogs.slice(0, 5).map(log => (
             <div key={log.id} className="relative group">
               {/* Timeline marker */}
               <span className={cn(
-                "absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 border-white shadow-sm transition-all duration-300 group-hover:scale-110",
+                "absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 border-slate-200 shadow-sm transition-all duration-300 group-hover:scale-110",
                 log.type === 'Trip' ? "bg-accent" : log.type === 'Maintenance' ? "bg-rust" : "bg-ink"
               )} />
               <div>
-                <p className="text-sm font-semibold text-ink leading-tight">{log.message}</p>
-                <p className="text-xs text-rust font-medium mt-1">{format(new Date(log.date), 'MMM d, yyyy • h:mm a')}</p>
+                <p className="text-sm font-semibold text-slate-900 leading-tight">{log.message}</p>
+                <p className="text-xs text-slate-500 font-medium mt-1">{format(new Date(log.date), 'MMM d, yyyy • h:mm a')}</p>
               </div>
             </div>
           ))}
           {state.activityLogs.length === 0 && (
-            <div className="text-center py-6 text-sm text-rust font-medium pl-0">
+            <div className="text-center py-6 text-sm text-slate-500 font-medium pl-0">
               No recent logs available.
             </div>
           )}
@@ -301,19 +301,19 @@ function FleetSimulationMap() {
     : demoTrips;
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-cream/50">
+    <div className="soft-card p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h3 className="text-lg font-bold font-display text-ink leading-none">Live Dispatch Control Map</h3>
-          <p className="text-xs text-rust font-medium mt-1">Geographic routes tracking active transit runs</p>
+          <h3 className="text-lg font-bold font-display text-slate-900 leading-none">Live Dispatch Control Map</h3>
+          <p className="text-xs text-slate-500 font-medium mt-1">Geographic routes tracking active transit runs</p>
         </div>
-        <div className="flex items-center gap-2 bg-cream-light p-1 rounded-lg border border-cream/55 text-xs font-semibold text-ink">
+        <div className="flex items-center gap-2 bg-transparent p-1 rounded-3xl border border-slate-200 text-xs font-semibold text-slate-900">
           <span className="pl-2">Demo Simulation:</span>
           <button 
             onClick={() => setSimulate(!simulate)}
             className={cn(
               "px-2.5 py-1 rounded-md transition-all cursor-pointer font-bold",
-              simulate ? "bg-accent text-white" : "bg-cream text-rust"
+              simulate ? "bg-accent text-slate-900" : "bg-white text-slate-500"
             )}
           >
             {simulate ? 'Active' : 'Disabled'}
@@ -323,12 +323,12 @@ function FleetSimulationMap() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* SVG Route Visualization map */}
-        <div className="lg:col-span-3 bg-cream-light/35 border border-cream/40 rounded-xl relative overflow-hidden h-[380px] flex items-center justify-center">
+        <div className="lg:col-span-3 bg-white border border-slate-200 rounded-full relative overflow-hidden h-[380px] flex items-center justify-center">
           <svg className="w-full h-full max-h-[380px]" viewBox="0 0 800 400" fill="none">
             {/* Grid Pattern Background */}
             <defs>
               <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#E2E8F0" strokeWidth="0.5" />
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#cbd5e1" strokeWidth="0.5" />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" />
@@ -346,7 +346,7 @@ function FleetSimulationMap() {
                     y1={start.y} 
                     x2={end.x} 
                     y2={end.y} 
-                    stroke="#E2E8F0" 
+                    stroke="#cbd5e1" 
                     strokeWidth="2.5" 
                     strokeLinecap="round" 
                   />
@@ -356,7 +356,7 @@ function FleetSimulationMap() {
                     y1={start.y} 
                     x2={end.x} 
                     y2={end.y} 
-                    stroke="#6366F1" 
+                    stroke="#000000" 
                     strokeWidth="2" 
                     strokeDasharray="8 6"
                     strokeLinecap="round"
@@ -373,14 +373,14 @@ function FleetSimulationMap() {
                   cx={pos.x} 
                   cy={pos.y} 
                   r={5} 
-                  fill="#475569" 
+                  fill="#64748b" 
                   className="transition-all duration-300 group-hover:fill-accent group-hover:r-7" 
                 />
                 <circle 
                   cx={pos.x} 
                   cy={pos.y} 
                   r={10} 
-                  stroke="#475569" 
+                  stroke="#94a3b8" 
                   strokeWidth="1.5"
                   className="opacity-0 group-hover:opacity-40 transition-opacity" 
                 />
@@ -388,7 +388,7 @@ function FleetSimulationMap() {
                   x={pos.x} 
                   y={pos.y - 12} 
                   textAnchor="middle" 
-                  fill="#475569" 
+                  fill="#64748b" 
                   className="text-[10px] font-bold tracking-tight select-none pointer-events-none font-mono"
                 >
                   {name}
@@ -410,7 +410,7 @@ function FleetSimulationMap() {
                   {/* Outer pulsing indicator */}
                   <motion.circle
                     r={12}
-                    fill="#6366F1"
+                    fill="#000000"
                     className="opacity-25"
                     animate={{
                       cx: [start.x, end.x],
@@ -426,8 +426,8 @@ function FleetSimulationMap() {
                   {/* Core Vehicle Dot */}
                   <motion.circle
                     r={6}
-                    fill="#6366F1"
-                    stroke="#FFF"
+                    fill="#000000"
+                    stroke="#FFFFFF"
                     strokeWidth={1.5}
                     animate={{
                       cx: [start.x, end.x],
@@ -446,28 +446,28 @@ function FleetSimulationMap() {
         </div>
 
         {/* Dispatch Tracker Sidebar panel */}
-        <div className="border border-cream/40 rounded-xl bg-cream-light/10 p-4 space-y-4 max-h-[380px] overflow-y-auto">
-          <p className="text-xs font-bold text-rust uppercase tracking-wider">Active Dispatches</p>
+        <div className="border border-slate-200 rounded-full bg-white p-4 space-y-4 max-h-[380px] overflow-y-auto">
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Dispatches</p>
           <div className="space-y-3">
             {currentTrips.map(trip => (
-              <div key={trip.id} className="p-3 bg-white border border-cream/55 rounded-xl space-y-2 shadow-xs">
-                <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-sage">
+              <div key={trip.id} className="p-3 bg-white border border-slate-200 rounded-full space-y-2 shadow-xs">
+                <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   <span className="font-mono">{trip.vehicle}</span>
                   <span className="flex items-center gap-1">
                     <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
                     En Route
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs font-semibold text-ink">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-900">
                   <span>{trip.source}</span>
-                  <span className="text-[10px] text-rust font-normal">➔</span>
+                  <span className="text-[10px] text-slate-500 font-normal">➔</span>
                   <span>{trip.destination}</span>
                 </div>
-                <p className="text-[10px] text-rust font-medium">Assigned: {trip.driver}</p>
+                <p className="text-[10px] text-slate-500 font-medium">Assigned: {trip.driver}</p>
               </div>
             ))}
             {currentTrips.length === 0 && (
-              <p className="text-center py-6 text-xs font-medium text-rust/80">No active dispatches currently tracked.</p>
+              <p className="text-center py-6 text-xs font-medium text-slate-500/80">No active dispatches currently tracked.</p>
             )}
           </div>
         </div>

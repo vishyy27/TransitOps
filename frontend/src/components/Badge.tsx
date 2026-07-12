@@ -6,24 +6,24 @@ interface BadgeProps {
 }
 
 export function Badge({ status }: BadgeProps) {
-  let colorClass = "bg-sage/15 text-sage";
-  let dotClass = "bg-sage";
+  let colorClass = "bg-blue-500/20 text-blue-400";
+  let dotClass = "bg-blue-400";
 
   if (status === 'On Trip' || status === 'Active' || status === 'Dispatched') {
-    colorClass = "bg-ink/10 text-ink";
-    dotClass = "bg-ink";
+    colorClass = "bg-emerald-500/20 text-emerald-400";
+    dotClass = "bg-emerald-400";
   } else if (status === 'In Shop' || status === 'Suspended') {
-    colorClass = "bg-rust/15 text-rust";
-    dotClass = "bg-rust";
+    colorClass = "bg-amber-500/20 text-amber-400";
+    dotClass = "bg-amber-400";
   } else if (status === 'Retired' || status === 'Cancelled') {
-    colorClass = "bg-accent/15 text-accent";
-    dotClass = "bg-accent";
+    colorClass = "bg-rose-500/20 text-rose-400";
+    dotClass = "bg-rose-400";
   } else if (status === 'Completed' || status === 'Available') {
-    colorClass = "bg-sage/15 text-sage";
-    dotClass = "bg-sage";
+    colorClass = "bg-blue-500/20 text-blue-400";
+    dotClass = "bg-blue-400";
   } else if (status === 'Draft' || status === 'Closed') {
-    colorClass = "bg-sage/30 text-ink/80";
-    dotClass = "bg-sage";
+    colorClass = "bg-slate-500/20 text-slate-400";
+    dotClass = "bg-blue-400";
   }
 
   return (
