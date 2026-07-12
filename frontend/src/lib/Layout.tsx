@@ -1,4 +1,6 @@
 import React, { useMemo, useState } from 'react';
+
+import { createPortal } from 'react-dom';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useStore } from '../store';
 import { 
@@ -167,7 +169,7 @@ export function Layout() {
       </div>
 
       {/* Sign Out Confirmation Modal */}
-      {isSignoutConfirmOpen && (
+      {isSignoutConfirmOpen && createPortal(
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="soft-card w-full max-w-sm backdrop-blur-[20px] bg-white/60 overflow-hidden shadow-2xl p-6 text-center">
             <div className="mx-auto w-12 h-12 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mb-4 border border-rose-100">
@@ -201,3 +203,4 @@ export function Layout() {
     </div>
   );
 }
+

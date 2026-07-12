@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../lib/api';
 import { useStore } from '../store';
 import { Plus, Search, Mail, Phone, TrendingUp, Building2, User, Check, X, Edit, Trash2 } from 'lucide-react';
 import { Customer } from '../types';
@@ -7,6 +8,7 @@ import { Badge } from '../components/Badge';
 
 export function Customers() {
   const { state, dispatch } = useStore();
+  React.useEffect(() => { api.get('/customers?limit=100').catch(() => ({data: []})).then(res => { dispatch({ type: 'SET_CUSTOMERS', payload: res.data || [] }); }).catch(console.error); }, [dispatch]);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
@@ -102,7 +104,8 @@ export function Customers() {
         ))}
         {filteredCustomers.length === 0 && (
           <div className="col-span-full py-12 text-center text-sm font-semibold text-slate-400">
-            No registered clients found.
+            Client Management Module (Coming Soon)
+Backend API integration is currently in progress.
           </div>
         )}
       </div>
@@ -287,3 +290,5 @@ function EditCustomerModal({ customer, onClose }: { customer: Customer; onClose:
     </div>
   );
 }
+
+

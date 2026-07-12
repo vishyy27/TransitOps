@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../lib/api';
 import { useStore } from '../store';
 import { Plus, Search, X, Download, Shield, CheckSquare, Edit } from 'lucide-react';
 import { Vehicle } from '../types';
@@ -8,6 +9,7 @@ import { exportToCSV } from '../lib/export';
 
 export function Vehicles() {
   const { state, dispatch } = useStore();
+  useEffect(() => { api.get('/vehicles?limit=100').then(res => { const mapped = (res.data || []).map((v: any) => ({...v, registrationNumber: v.registration_number, maxLoadCapacity: v.max_load_capacity, acquisitionCost: v.acquisition_cost})); dispatch({ type: 'SET_VEHICLES', payload: mapped }); }).catch(console.error); }, [dispatch]);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -204,8 +206,8 @@ export function Vehicles() {
                     <Badge status={vehicle.status} />
                   </td>
                   <td className="py-4 px-5 text-right flex justify-end gap-2">
-                    <button onClick={() => setSelectedVehicleId(vehicle.id)} className="text-xs font-bold text-slate-500 hover:text-slate-950 uppercase tracking-wider">Details</button>
-                    <button onClick={() => { setEditingVehicle(vehicle); setIsEditModalOpen(true); }} className="text-xs font-bold text-accent hover:text-accent/80 uppercase tracking-wider">Edit</button>
+                    <button onClick={() => setSelectedVehicleId(vehicle.id)} className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-950">Details</button>
+                    <button onClick={() => { setEditingVehicle(vehicle); setIsEditModalOpen(true); }} className="text-xs font-bold uppercase tracking-wider text-accent hover:text-accent/80">Edit</button>
                     <button 
                       onClick={() => {
                         if (vehicle.status !== 'Retired') {
@@ -213,7 +215,7 @@ export function Vehicles() {
                         }
                       }}
                       disabled={vehicle.status === 'Retired' || vehicle.status === 'On Trip'}
-                      className="text-xs font-bold text-red-500 hover:text-red-700 disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-wider transition-colors cursor-pointer"
+                      className="text-xs font-bold uppercase tracking-wider text-red-500 hover:text-red-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
                     >
                       {vehicle.status === 'Retired' ? 'Retired' : 'Retire'}
                     </button>

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../lib/api';
 import { useStore } from '../store';
 import { Plus, X, Check, Search, Download, Wrench, Edit } from 'lucide-react';
 import { format } from 'date-fns';
@@ -8,6 +9,7 @@ import { MaintenanceRecord } from '../types';
 
 export function Maintenance() {
   const { state, dispatch } = useStore();
+  React.useEffect(() => { api.get('/maintenance?limit=100').then(res => { dispatch({ type: 'SET_MAINTENANCE_RECORDS', payload: res.data || [] }); }).catch(console.error); }, [dispatch]);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

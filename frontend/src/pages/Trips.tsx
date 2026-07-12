@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../lib/api';
 import { useStore } from '../store';
 import { Plus, X, ArrowRight, CheckCircle, XCircle, MapPin, Gauge, ShieldAlert, Calendar, Download, Edit } from 'lucide-react';
 import { TripStatus, Trip } from '../types';
@@ -8,6 +9,7 @@ import { exportToCSV } from '../lib/export';
 
 export function Trips() {
   const { state, dispatch } = useStore();
+  React.useEffect(() => { api.get('/trips?limit=100').then(res => { const mapped = (res.data || []).map((t: any) => ({...t, vehicleId: t.vehicle_id, driverId: t.driver_id, cargoWeight: t.cargo_weight, plannedDistance: t.planned_distance})); dispatch({ type: 'SET_TRIPS', payload: mapped }); }).catch(console.error); }, [dispatch]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useReducer, ReactNode } from 'react';
+import toast from 'react-hot-toast';
 import { 
   User, Vehicle, Driver, Trip, MaintenanceRecord, 
   FuelLog, Expense, ActivityLog, Customer, Invoice
@@ -29,6 +30,13 @@ interface State {
 }
 
 type Action = 
+  | { type: 'SET_VEHICLES'; payload: Vehicle[] }
+  | { type: 'SET_DRIVERS'; payload: Driver[] }
+  | { type: 'SET_TRIPS'; payload: Trip[] }
+  | { type: 'SET_MAINTENANCE_RECORDS'; payload: MaintenanceRecord[] }
+  | { type: 'SET_FUEL_LOGS'; payload: FuelLog[] }
+  | { type: 'SET_EXPENSES'; payload: Expense[] }
+  | { type: 'SET_CUSTOMERS'; payload: Customer[] }
   | { type: 'LOGIN'; payload: User }
   | { type: 'UPDATE_USER'; payload: User }
   | { type: 'UPDATE_WORKSPACE_PREFERENCES'; payload: State['workspacePreferences'] }
@@ -522,8 +530,16 @@ function reducer(state: State, action: Action): State {
         users: state.users.filter(u => u.id !== action.payload)
       };
     case 'ADD_INVOICE':
-
+      toast.success('Invoice generated');
       return { ...state, invoices: [...state.invoices, action.payload] };
+
+    case 'SET_VEHICLES': return { ...state, vehicles: action.payload };
+    case 'SET_DRIVERS': return { ...state, drivers: action.payload };
+    case 'SET_TRIPS': return { ...state, trips: action.payload };
+    case 'SET_MAINTENANCE_RECORDS': return { ...state, maintenanceRecords: action.payload };
+    case 'SET_FUEL_LOGS': return { ...state, fuelLogs: action.payload };
+    case 'SET_EXPENSES': return { ...state, expenses: action.payload };
+    case 'SET_CUSTOMERS': return { ...state, customers: action.payload };
 
     default:
       return state;

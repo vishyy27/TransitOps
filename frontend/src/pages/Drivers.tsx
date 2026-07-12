@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../lib/api';
 import { useStore } from '../store';
 import { Plus, Search, AlertTriangle, X, Download, UserCheck, Edit } from 'lucide-react';
 import { Driver } from '../types';
@@ -9,6 +10,7 @@ import { toast } from 'react-hot-toast';
 
 export function Drivers() {
   const { state, dispatch } = useStore();
+  React.useEffect(() => { api.get('/drivers?limit=100').then(res => { const mapped = (res.data || []).map((d: any) => ({...d, licenseNumber: d.license_number, licenseCategory: d.license_category, licenseExpiryDate: d.license_expiry_date, contactNumber: d.contact_number, safetyScore: d.safety_score})); dispatch({ type: 'SET_DRIVERS', payload: mapped }); }).catch(console.error); }, [dispatch]);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);

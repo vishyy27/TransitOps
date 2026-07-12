@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../lib/api';
 import { useStore } from '../store';
 import { Plus, X, Fuel as FuelIcon, Receipt, Calendar, CreditCard, DollarSign, Edit } from 'lucide-react';
 import { format } from 'date-fns';
@@ -6,7 +7,8 @@ import { cn } from '../lib/utils';
 import { FuelLog, Expense } from '../types';
 
 export function Fuel() {
-  const { state } = useStore();
+  const { state, dispatch } = useStore();
+  React.useEffect(() => { api.get('/fuel-logs?limit=100').then(res => { dispatch({ type: 'SET_FUEL_LOGS', payload: res.data || [] }); }).catch(console.error); api.get('/expenses?limit=100').then(res => { dispatch({ type: 'SET_EXPENSES', payload: res.data || [] }); }).catch(console.error); }, [dispatch]);
   const [tab, setTab] = useState<'fuel' | 'expenses'>('fuel');
   const [isFuelModalOpen, setIsFuelModalOpen] = useState(false);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);

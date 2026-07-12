@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { api } from '../lib/api';
 import React, { useMemo } from 'react';
 import { useStore } from '../store';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -5,7 +7,8 @@ import { Download, Printer, BarChart2, TrendingUp, DollarSign } from 'lucide-rea
 import { cn } from '../lib/utils';
 
 export function Reports() {
-  const { state } = useStore();
+  const { state, dispatch } = useStore();
+  useEffect(() => { api.get('/vehicles?limit=100').then(res => dispatch({ type: 'SET_VEHICLES', payload: res.data || [] })).catch(console.error); api.get('/trips?limit=100').then(res => dispatch({ type: 'SET_TRIPS', payload: res.data || [] })).catch(console.error); api.get('/fuel-logs?limit=100').then(res => dispatch({ type: 'SET_FUEL_LOGS', payload: res.data || [] })).catch(console.error); api.get('/expenses?limit=100').then(res => dispatch({ type: 'SET_EXPENSES', payload: res.data || [] })).catch(console.error); }, [dispatch]);
 
   const vehicleStats = useMemo(() => {
     return state.vehicles.map(v => {
@@ -187,4 +190,6 @@ export function Reports() {
     </div>
   );
 }
+
+
 
