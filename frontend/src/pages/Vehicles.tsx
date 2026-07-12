@@ -14,6 +14,10 @@ export function Vehicles() {
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [filterType, setFilterType] = useState('All');
+  const [filterStatus, setFilterStatus] = useState('All');
+  const [sortBy, setSortBy] = useState('registrationNumber');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const toggleRow = (id: string) => {
     setSelectedRows(prev => prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]);
@@ -43,10 +47,27 @@ export function Vehicles() {
   };
 
 
-  const filteredVehicles = state.vehicles.filter(v => 
-    v.registrationNumber.toLowerCase().includes(search.toLowerCase()) ||
-    v.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredVehicles = state.vehicles
+    .filter(v => {
+      const matchesSearch = v.registrationNumber.toLowerCase().includes(search.toLowerCase()) ||
+                            v.name.toLowerCase().includes(search.toLowerCase());
+      const matchesType = filterType === 'All' || v.type === filterType;
+      const matchesStatus = filterStatus === 'All' || v.status === filterStatus;
+      return matchesSearch && matchesType && matchesStatus;
+    })
+    .sort((a, b) => {
+      const valA = a[sortBy as keyof typeof a];
+      const valB = b[sortBy as keyof typeof b];
+      if (typeof valA === 'string' && typeof valB === 'string') {
+        return sortOrder === 'asc' 
+          ? valA.localeCompare(valB) 
+          : valB.localeCompare(valA);
+      }
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        return sortOrder === 'asc' ? valA - valB : valB - valA;
+      }
+      return 0;
+    });
 
   return (
     <div className="space-y-6 selection:bg-accent/20">
@@ -67,15 +88,59 @@ export function Vehicles() {
             </div>
           </div>
         )}
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
-          <input 
-            type="text"
-            placeholder="Search registration or model..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm soft-input font-medium"
-          />
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto flex-1 max-w-3xl">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
+            <input 
+              type="text"
+              placeholder="Search registration or model..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 text-sm soft-input font-medium"
+            />
+          </div>
+          
+          <select 
+            value={filterType} 
+            onChange={(e) => setFilterType(e.target.value)} 
+            className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300"
+          >
+            <option value="All">All Types</option>
+            <option value="Van">Vans</option>
+            <option value="Truck">Trucks</option>
+            <option value="Car">Cars</option>
+          </select>
+
+          <select 
+            value={filterStatus} 
+            onChange={(e) => setFilterStatus(e.target.value)} 
+            className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300"
+          >
+            <option value="All">All Statuses</option>
+            <option value="Available">Available</option>
+            <option value="On Trip">On Trip</option>
+            <option value="In Shop">In Shop</option>
+            <option value="Retired">Retired</option>
+          </select>
+
+          <select 
+            value={sortBy} 
+            onChange={(e) => setSortBy(e.target.value)} 
+            className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300"
+          >
+            <option value="registrationNumber">Sort: Reg No</option>
+            <option value="name">Sort: Model</option>
+            <option value="maxLoadCapacity">Sort: Capacity</option>
+            <option value="odometer">Sort: Odometer</option>
+          </select>
+
+          <button 
+            onClick={() => setSortOrder(order => order === 'asc' ? 'desc' : 'asc')}
+            className="p-1.5 border border-slate-200 rounded-full text-slate-500 hover:text-slate-900 bg-white cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 transition-colors"
+            title="Toggle Sort Order"
+          >
+            {sortOrder === 'asc' ? '↑' : '↓'}
+          </button>
         </div>
         
         <div className="flex items-center gap-3 w-full sm:w-auto">

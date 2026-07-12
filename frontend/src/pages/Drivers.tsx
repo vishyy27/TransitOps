@@ -15,6 +15,10 @@ export function Drivers() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [filterCategory, setFilterCategory] = useState('All');
+  const [filterStatus, setFilterStatus] = useState('All');
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const toggleRow = (id: string) => {
     setSelectedRows(prev => prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]);
@@ -44,10 +48,27 @@ export function Drivers() {
   };
 
 
-  const filteredDrivers = state.drivers.filter(d => 
-    d.name.toLowerCase().includes(search.toLowerCase()) ||
-    d.licenseNumber.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredDrivers = state.drivers
+    .filter(d => {
+      const matchesSearch = d.name.toLowerCase().includes(search.toLowerCase()) ||
+                            d.licenseNumber.toLowerCase().includes(search.toLowerCase());
+      const matchesCategory = filterCategory === 'All' || d.licenseCategory === filterCategory;
+      const matchesStatus = filterStatus === 'All' || d.status === filterStatus;
+      return matchesSearch && matchesCategory && matchesStatus;
+    })
+    .sort((a, b) => {
+      const valA = a[sortBy as keyof typeof a];
+      const valB = b[sortBy as keyof typeof b];
+      if (typeof valA === 'string' && typeof valB === 'string') {
+        return sortOrder === 'asc' 
+          ? valA.localeCompare(valB) 
+          : valB.localeCompare(valA);
+      }
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        return sortOrder === 'asc' ? valA - valB : valB - valA;
+      }
+      return 0;
+    });
 
   return (
     <div className="space-y-6 selection:bg-accent/20">
@@ -68,15 +89,60 @@ export function Drivers() {
             </div>
           </div>
         )}
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
-          <input 
-            type="text"
-            placeholder="Search name or license..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm soft-input font-medium"
-          />
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto flex-1 max-w-3xl">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
+            <input 
+              type="text"
+              placeholder="Search name or license..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 text-sm soft-input font-medium"
+            />
+          </div>
+
+          <select 
+            value={filterCategory} 
+            onChange={(e) => setFilterCategory(e.target.value)} 
+            className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300"
+          >
+            <option value="All">All Categories</option>
+            <option value="A">Class A</option>
+            <option value="B">Class B</option>
+            <option value="C">Class C</option>
+            <option value="D">Class D</option>
+            <option value="E">Class E</option>
+          </select>
+
+          <select 
+            value={filterStatus} 
+            onChange={(e) => setFilterStatus(e.target.value)} 
+            className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300"
+          >
+            <option value="All">All Statuses</option>
+            <option value="Available">Available</option>
+            <option value="On Trip">On Trip</option>
+            <option value="Off Duty">Off Duty</option>
+            <option value="Suspended">Suspended</option>
+          </select>
+
+          <select 
+            value={sortBy} 
+            onChange={(e) => setSortBy(e.target.value)} 
+            className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300"
+          >
+            <option value="name">Sort: Name</option>
+            <option value="licenseExpiryDate">Sort: Expiry Date</option>
+            <option value="safetyScore">Sort: Safety Score</option>
+          </select>
+
+          <button 
+            onClick={() => setSortOrder(order => order === 'asc' ? 'desc' : 'asc')}
+            className="p-1.5 border border-slate-200 rounded-full text-slate-500 hover:text-slate-900 bg-white cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 transition-colors"
+            title="Toggle Sort Order"
+          >
+            {sortOrder === 'asc' ? '↑' : '↓'}
+          </button>
         </div>
         
         <div className="flex items-center gap-3 w-full sm:w-auto">
