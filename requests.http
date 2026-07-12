@@ -1,0 +1,81 @@
+@baseUrl = http://localhost:3000
+@fmEmail = alice@transitops.com
+@password = password123
+
+### 1. Login as Fleet Manager
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{fmEmail}}",
+  "password": "{{password}}"
+}
+
+### Store token
+@token = {{login.response.body.data.token}}
+
+### 2. Get Vehicles
+GET {{baseUrl}}/vehicles
+Authorization: Bearer {{token}}
+
+### 3. Get Drivers
+GET {{baseUrl}}/drivers
+Authorization: Bearer {{token}}
+
+### 4. Create a DRAFT Trip (Valid < 500kg)
+# @name createTrip
+POST {{baseUrl}}/trips
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "source": "Warehouse A",
+  "destination": "Store B",
+  "vehicle_id": 1,
+  "driver_id": 1,
+  "cargo_weight": 450,
+  "planned_distance": 120.5
+}
+
+### Store trip ID
+@tripId = {{createTrip.response.body.data.id}}
+
+### 5. Dispatch Trip
+POST {{baseUrl}}/trips/{{tripId}}/dispatch
+Authorization: Bearer {{token}}
+
+### 6. Complete Trip
+POST {{baseUrl}}/trips/{{tripId}}/complete
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "final_odometer": 120.5,
+  "fuel_consumed": 15.2,
+  "revenue": 500,
+  "fuel_cost": 45.6
+}
+
+### 7. Send Vehicle to Maintenance
+POST {{baseUrl}}/maintenance
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "vehicle_id": 1,
+  "description": "Oil change and tire rotation",
+  "cost": 150.00
+}
+
+### 8. View Dashboard KPIs
+GET {{baseUrl}}/dashboard/kpis
+Authorization: Bearer {{token}}
+
+### 9. View Vehicle ROI
+GET {{baseUrl}}/reports/vehicle-roi
+Authorization: Bearer {{token}}
+
+### 10. Export Vehicles CSV
+GET {{baseUrl}}/reports/export/csv?type=vehicles
+Authorization: Bearer {{token}}

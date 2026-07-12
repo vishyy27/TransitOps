@@ -1,0 +1,118 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  name          String
+  email         String   @unique
+  password_hash String
+  role          String   // FLEET_MANAGER, DRIVER, SAFETY_OFFICER, FINANCIAL_ANALYST
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}
+
+model Vehicle {
+  id                  Int               @id @default(autoincrement())
+  registration_number String            @unique
+  name                String
+  type                String
+  max_load_capacity   Float
+  odometer            Float             @default(0)
+  acquisition_cost    Float
+  status              String            @default("AVAILABLE") // AVAILABLE, ON_TRIP, IN_SHOP, RETIRED
+  region              String
+  created_at          DateTime          @default(now())
+  updated_at          DateTime          @updatedAt
+  
+  trips               Trip[]
+  maintenanceLogs     MaintenanceLog[]
+  fuelLogs            FuelLog[]
+  expenses            Expense[]
+
+  @@index([status])
+}
+
+model Driver {
+  id                  Int       @id @default(autoincrement())
+  name                String
+  license_number      String    @unique
+  license_category    String
+  license_expiry_date DateTime
+  contact_number      String
+  safety_score        Float     @default(100)
+  status              String    @default("AVAILABLE") // AVAILABLE, ON_TRIP, OFF_DUTY, SUSPENDED
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+  
+  trips               Trip[]
+
+  @@index([status])
+}
+
+model Trip {
+  id               Int       @id @default(autoincrement())
+  source           String
+  destination      String
+  vehicle_id       Int
+  driver_id        Int
+  cargo_weight     Float
+  planned_distance Float
+  final_odometer   Float?
+  fuel_consumed    Float?
+  revenue          Float?
+  status           String    @default("DRAFT") // DRAFT, DISPATCHED, COMPLETED, CANCELLED
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  
+  vehicle          Vehicle   @relation(fields: [vehicle_id], references: [id], onDelete: Restrict)
+  driver           Driver    @relation(fields: [driver_id], references: [id], onDelete: Restrict)
+  fuelLogs         FuelLog[]
+
+  @@index([status])
+}
+
+model MaintenanceLog {
+  id          Int       @id @default(autoincrement())
+  vehicle_id  Int
+  description String
+  cost        Float
+  status      String    @default("OPEN") // OPEN, CLOSED
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  closed_at   DateTime?
+  
+  vehicle     Vehicle   @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
+}
+
+model FuelLog {
+  id         Int      @id @default(autoincrement())
+  vehicle_id Int
+  trip_id    Int?
+  liters     Float
+  cost       Float
+  date       DateTime @default(now())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  
+  vehicle    Vehicle  @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
+  trip       Trip?    @relation(fields: [trip_id], references: [id], onDelete: SetNull)
+}
+
+model Expense {
+  id          Int      @id @default(autoincrement())
+  vehicle_id  Int
+  type        String   // TOLL, OTHER
+  amount      Float
+  date        DateTime @default(now())
+  description String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  vehicle     Vehicle  @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
+}
